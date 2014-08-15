@@ -5,7 +5,7 @@ project(succinct_test CXX C)
 add_definitions(-O3)
 include_directories(../include)
 
-add_executable(fast-bit-vector_benchmark fast-bit-vector_benchmark)
+add_executable(fast-bit-vector_benchmark fast-bit-vector_benchmark.cpp)
 target_link_libraries(fast-bit-vector_benchmark
   succinct
   )
@@ -13,4 +13,10 @@ target_link_libraries(fast-bit-vector_benchmark
 add_executable(wavelet_benchmark wavelet_benchmark.cpp)
 target_link_libraries(wavelet_benchmark
   succinct
+  )
+
+add_executable(csa_benchmark csa_benchmark.cpp)
+target_link_libraries(csa_benchmark
+  succinct
+  divsufsort
   )

@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.6.0)
 project(succinct_test CXX C)
 
 add_definitions(-g -O0)
-include_directories(../include)
 
 add_executable(bit-vector_test bit-vector_test.cpp)
 target_link_libraries(bit-vector_test
@@ -24,3 +23,28 @@ target_link_libraries(wavelet_test
   )
 add_custom_command(TARGET wavelet_test POST_BUILD
     COMMAND wavelet_test || true)
+
+add_executable(delta-vector_test delta-vector_test.cpp)
+target_link_libraries(delta-vector_test
+    succinct
+    gtest_main
+    gtest
+    pthread
+    )
+
+add_executable(csa_test csa_test.cpp)
+target_link_libraries(csa_test
+    divsufsort
+    succinct
+    gtest_main
+    gtest
+    pthread
+    )
+
+add_custom_command(TARGET csa_test POST_BUILD
+    COMMAND csa_test || true)
+  # add_executable(wt-csa_test wt-csa_test.cpp)
+  # target_link_libraries(wt-csa_test
+  #     divsufsort
+  #     succinct
+  #     )

@@ -31,7 +31,7 @@ TYPED_TEST(BitVectorTest, ShortRank) {
 
 TYPED_TEST(BitVectorTest, RandomRank) {
   std::mt19937_64 mt(0);
-  int n = 1<<20;
+  int n = 1<<16;
   int m = n;
   MutableBitVector v(n);
   for (int j = 0; j < n; ++j) {
@@ -62,7 +62,7 @@ TYPED_TEST(BitVectorTest, ShortSelect) {
 
 TYPED_TEST(BitVectorTest, RandomSelect) {
   std::mt19937_64 mt(0);
-  int n = 1<<20;
+  int n = 1<<15;
   int m = n / 4;
   MutableBitVector v;
   for (int j = 0; j < n; ++j) {
