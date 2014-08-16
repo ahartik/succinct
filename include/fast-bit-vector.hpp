@@ -23,14 +23,13 @@ class FastBitVector {
   // Empty constructor.
   FastBitVector();
   explicit FastBitVector(const MutableBitVector& bv);
+  explicit FastBitVector(const MutableBitVector&& bv);
   FastBitVector(const FastBitVector& other) = delete;
   FastBitVector(FastBitVector&& other);
   const FastBitVector& operator=(FastBitVector&& other);
 
   bool operator[](size_t pos) const {
-    size_t i = pos / WordBits;
-    int offset = pos % WordBits;
-    return (bits_[i] >> offset) & 1;
+    return bv_[pos];
   }
 
   // Number of positions < pos set with bit_value.
@@ -44,13 +43,14 @@ class FastBitVector {
     remaining -= RankSubSample * sub_block;
     size_t word = (block * RankSample + sub_block * RankSubSample) / WordBits;
     size_t end_word = pos / WordBits;
+    const Word *bits = bv_.data();
     for (; word < end_word; ++word) {
-      sum += __builtin_popcountll(bits_[word]);
+      sum += WordPopCount(bits[word]);
       remaining -= WordBits;
     }
     // Add first bits from the last word.
     unsigned long mask = (1LL << remaining) - 1LL;
-    sum += __builtin_popcountll(bits_[word] & mask);
+    sum += WordPopCount(bits[word] & mask);
     if (bit_value == 0) return pos - sum;
     return sum;
   }
@@ -77,7 +77,7 @@ class FastBitVector {
     size_t word_rank = bit ? rank_samples_[left].abs : left * RankSample - rank_samples_[left].abs;
     assert(word_rank <= idx);
     // Linear search for correct rank-sub-sample
-    const size_t total_words = (size_ + WordBits - 1) / WordBits;
+    const size_t total_words = (size() + WordBits - 1) / WordBits;
     for (int sub_block = 5; sub_block > 0; --sub_block) {
       size_t r = subBlockRank(left, sub_block);
       r = bit ? r : (sub_block * RankSubSample - r);
@@ -92,9 +92,10 @@ class FastBitVector {
     }
     assert(word_rank <= idx);
 
+    const Word* bits = bv_.data();
     // Scan words
     for (size_t w = word_start; w < total_words; ++w) {
-      size_t pop = __builtin_popcountll(bits_[w]);
+      size_t pop = __builtin_popcountll(bits[w]);
       size_t r = word_rank + (bit ? pop : WordBits - pop);
       if (r >= idx) break;
       word_rank = r;
@@ -105,13 +106,13 @@ class FastBitVector {
     size_t id = idx - word_rank;
     assert(id >= 0 && id <= WordBits);
     if (id == 0) return word_start * WordBits;
-    size_t w = bits_[word_start];
+    size_t w = bits[word_start];
     if (!bit) w = ~w;
     return word_start * WordBits + WordSelect(w, id);
   }
 
   size_t size() const {
-    return size_;
+    return bv_.size();
   }
   size_t count(bool bit) const {
     if (bit) return popcount_;
@@ -128,11 +129,10 @@ class FastBitVector {
   size_t subBlockRank(size_t block, int sub_block) const {
       return (rank_samples_[block].rel >> (11ull * (5 - sub_block))) & 0x7FFull;
   }
+  void init();
 
-  size_t size_;
+  MutableBitVector bv_;
   size_t popcount_;
-
-  unsigned long* bits_;
   struct RankBlock {
     uint64_t abs;
     uint64_t rel;

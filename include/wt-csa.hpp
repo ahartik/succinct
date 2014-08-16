@@ -9,6 +9,8 @@
 #include <vector>
 #include <cassert>
 
+// TODO: unhack!
+
 class WtCSA {
  public:
   typedef int Index;

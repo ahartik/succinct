@@ -4,10 +4,6 @@
 #include <iostream>
 #include <algorithm>
 
-static int ilog2(uint64_t x) {
-  return 63 - __builtin_clzll(x);
-}
-
 static uint64_t len_counter[65] = {};
 
 class DeltaEncoder {
@@ -28,8 +24,8 @@ class DeltaEncoder {
   void add(uint64_t x) {
     uint64_t code = 0;
     int shift = 0;
-    uint64_t len = 1 + ilog2(x);
-    uint64_t len2 = ilog2(len);
+    uint64_t len = 1 + WordLog2(x);
+    uint64_t len2 = WordLog2(len);
     code = x ^ (1ll << (len - 1));
     shift = len - 1;
     code |= len << shift;

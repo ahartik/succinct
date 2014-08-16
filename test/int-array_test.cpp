@@ -1,4 +1,4 @@
-#include "int-array.h"
+#include "int-array.hpp"
 #include <vector>
 
 #include <cassert>
@@ -22,7 +22,7 @@ void test(IntArray& arr) {
 }
 
 int main() {
-  for (int w = 1; w < 64; ++w) {
+  for (int w = 1; w <= 64; ++w) {
     IntArray arr(w, 100000);
     test(arr);
     std::cout << "arr(" << w << ") OK! \n";

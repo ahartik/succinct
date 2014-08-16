@@ -41,6 +41,11 @@ target_link_libraries(csa_test
     pthread
     )
 
+add_executable(int-array_test int-array_test.cpp)
+target_link_libraries(int-array_test
+    succinct
+    )
+
 add_custom_command(TARGET csa_test POST_BUILD
     COMMAND csa_test || true)
   # add_executable(wt-csa_test wt-csa_test.cpp)

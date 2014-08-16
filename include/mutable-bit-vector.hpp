@@ -27,6 +27,11 @@ class MutableBitVector {
       : bits_(std::move(o.bits_)), size_(o.size_) {
     o.size_ = 0;
   }
+  const MutableBitVector& operator=(const MutableBitVector& o) {
+    size_ = o.size_;
+    bits_ = o.bits_;
+    return *this;
+  }
   MutableBitVector(std::initializer_list<bool> v) {
     size_ = 0;
     resize(v.size());
@@ -40,7 +45,7 @@ class MutableBitVector {
     bits_.reserve((n + WordBits - 1) / WordBits);
   }
   void trim() {
-    bits_ = std::vector<unsigned long>(bits_);
+    bits_ = std::vector<Word>(bits_);
   }
 
   size_t size() const {
@@ -48,7 +53,7 @@ class MutableBitVector {
   }
   
   void resize(size_t n, bool val = false) {
-    unsigned long fill = 0;
+    Word fill = 0;
     if (n > size_) {
       int offset = size_ % WordBits;
       if (val) {
@@ -110,6 +115,33 @@ class MutableBitVector {
     return ConstBitIterator(ret);
   }
 
+  Word getWord(size_t i, int len) const {
+    size_t pos = i / WordBits;
+    size_t off = i % WordBits;
+    Word mask =  (1LL << len) - 1;
+    if (len == WordBits) mask = ~Word(0);
+    Word lr = bits_[pos];
+    Word hr = pos == bits_.size() - 1 ? 0 : bits_[pos + 1];
+    Word l = lr >> off;
+    Word h = off == 0 ? 0 : hr << (WordBits - off);
+    return (h + l) & mask;
+  }
+
+  void setWord(size_t i, Word val, int len) {
+    size_t pos = i / WordBits;
+    size_t off = i % WordBits;
+    Word mask =  (1LL << len) - 1;
+    if (len == WordBits) mask = ~Word(0);
+    Word fake_high;
+    Word& lr = bits_[pos];
+    Word& hr = off == 0 ? fake_high : bits_[pos + 1];
+    // set bits to zero before ORing
+    lr &= ~(mask << off);
+    hr &= ~(mask >> (WordBits - off));
+    lr |= (val << off);
+    hr |= (val >> (WordBits - off));
+  }
+
   template<typename Iterator>
   void insert(BitIterator pos, Iterator b, Iterator e) {
     size_t s = e - b;
@@ -143,13 +175,18 @@ class MutableBitVector {
     return (bits_[i] >> offset) & 1;
   }
 
-  const unsigned long* data() const {
+  const Word* data() const {
     return bits_.data();
   }
+
+  Word* data() {
+    return bits_.data();
+  }
+
   size_t byteSize() const {
     return sizeof(*this) + bits_.size() * WordBits / 8;
   }
  private:
-  std::vector<unsigned long> bits_;
+  std::vector<Word> bits_;
   size_t size_;
 };
