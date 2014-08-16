@@ -128,13 +128,15 @@ class MutableBitVector {
   }
 
   void setWord(size_t i, Word val, int len) {
+    assert (i + len <= size());
     size_t pos = i / WordBits;
     size_t off = i % WordBits;
     Word mask =  (1LL << len) - 1;
     if (len == WordBits) mask = ~Word(0);
     Word fake_high;
     Word& lr = bits_[pos];
-    Word& hr = off == 0 ? fake_high : bits_[pos + 1];
+    Word& hr = off == 0 ? fake_high : 
+        (pos < bits_.size() - 1 ? bits_[pos + 1] : fake_high);
     // set bits to zero before ORing
     lr &= ~(mask << off);
     hr &= ~(mask >> (WordBits - off));

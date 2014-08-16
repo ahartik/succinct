@@ -15,7 +15,8 @@ class BitVectorTest : public ::testing::Test {
 typedef ::testing::Types<
   FastBitVector,
   SparseBitVector,
-  RRRBitVector<63>
+  RRRBitVector<63>,
+  RRRBitVector<32>
   > BitVectorTypes;
 
 TYPED_TEST_CASE(BitVectorTest, BitVectorTypes);
@@ -104,43 +105,11 @@ TYPED_TEST(BitVectorTest, Edges) {
     ASSERT_EQ(0, vec.rank(j, 0)) << j;
     ASSERT_EQ(j, vec.select(j, 1)) << j;
   }
-}
-
-class RRRBitVectorTest : public ::testing::Test {
- public:
-  template<int B>
-  Word encode(int k, Word w) const {
-    return RRRBitVector<B>::encode(k, w);
-  }
-  template<int B>
-  Word decode(int k, Word w) const {
-    return RRRBitVector<B>::decode(k, w);
-  }
-};
-
-TEST_F(RRRBitVectorTest, EncodeDecode) {
-  size_t T = 1000;
-  srand(0);
-  for (int i = 0; i < T; ++i) {
-    Word r = rand() | (Word(rand()) << 32);
-    Word w = r % (1ull << 63);
-    int k = WordPopCount(w);
-    Word code = encode<63>(k, w);
-    Word dec = decode<63>(k, code);
-    ASSERT_EQ(w, dec);
-  }
-}
-TEST_F(RRRBitVectorTest, Index) {
-  MutableBitVector v(128 * 20);
-  for (int i = 0; i < v.size(); ++i) {
-    v[i] = i % 17 == 0;
-  }
-  for (int i = 10; i < 10 + 128; ++i)
-    v[i] = 1;
-  for (int i = 100; i < 100 + 128; ++i)
-    v[i] = 0;
-  RRRBitVector<63> vec(v);
-  for (size_t i = 0; i < v.size(); ++i) {
-    ASSERT_EQ(int(v[i]), int(vec[i])) << i;
-  }
+  // Construct empty
+  v.resize(0);
+  TypeParam evec(v);
+  ASSERT_EQ(0, vec.select(0,0));
+  ASSERT_EQ(0, vec.select(0,1));
+  ASSERT_EQ(0, vec.rank(0,1));
+  ASSERT_EQ(0, vec.rank(0,0));
 }

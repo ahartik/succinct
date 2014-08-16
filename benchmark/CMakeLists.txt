@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 2.6.0)
 ## Project information ##
 project(succinct_test CXX C)
 
-add_definitions(-O3)
+add_definitions(-O3 -DNDEBUG -march=native)
 include_directories(../include)
 
-add_executable(fast-bit-vector_benchmark fast-bit-vector_benchmark.cpp)
-target_link_libraries(fast-bit-vector_benchmark
+add_executable(bit-vector_benchmark bit-vector_benchmark.cpp)
+target_link_libraries(bit-vector_benchmark
   succinct
   )
 

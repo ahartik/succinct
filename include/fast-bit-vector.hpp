@@ -35,6 +35,7 @@ class FastBitVector {
   // Number of positions < pos set with bit_value.
   size_t rank(size_t pos, bool bit_value) const {
     if (pos == 0) return 0;
+    if (pos == size()) return count(bit_value);
     size_t block = pos / RankSample;
     unsigned remaining = pos % RankSample;
     size_t sum = rank_samples_[block].abs;
@@ -121,6 +122,9 @@ class FastBitVector {
   size_t extra_bits() const;
   size_t bitSize() const {
     return size() + extra_bits();
+  }
+  size_t byteSize() const {
+    return bv_.byteSize() + extra_bits() / 8;
   }
 
   ~FastBitVector();

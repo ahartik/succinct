@@ -13,7 +13,7 @@ typedef uint64_t Word;
 int InitBitUtils();
 extern uint8_t BytePop[256];
 extern uint8_t ByteSelect[256][8];
-extern Word BinTable[65][64];
+extern Word BinTable[64][64];
 
 // Select for single word.
 //  v: Input value to find position with rank r.
@@ -44,8 +44,6 @@ static inline int WordLog2(Word x) {
 static inline Word Binomial(int k, int n) {
   static int init = InitBitUtils();
   (void) init;
-  if (k == n) return 1;
-  if (k > n) return 0;
-  assert (n <= 64);
+  assert (n < 64);
   return BinTable[n][k];
 }

@@ -35,11 +35,12 @@ class Test {
   void RankSparse(int iters) {
     const size_t size = 1<<25;
     std::cout << "Rank sparse:\n";
+    const unsigned int rarity = 1<<10;
     using namespace std::chrono;
     std::mt19937_64 mt(1);
     MutableBitVector v;
     for (size_t j = 0; j < size; ++j) {
-      v.push_back(mt()%2 == 0);
+      v.push_back(mt()%rarity == 0);
     }
     BitVector vec(v);
     std::chrono::high_resolution_clock clock;
@@ -49,8 +50,9 @@ class Test {
       total = total * 178923 + 987341;
       total += vec.rank(total % size, total%2);
     }
-    std::cout << "total = " << total << endl;
     auto end = clock.now();
+    std::cout << "total = " << total << endl;
+    std::cout << double(vec.byteSize() * 8) / vec.size() << " bits/bit\n";
     long ms = duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << ms << "ms\n";
     std::cout << duration_cast<nanoseconds>(end-start).count()/iters << "ns/rank\n";
@@ -74,8 +76,8 @@ class Test {
       total = total * 178923 + 987341;
       total += vec.select(total % (size / 4), b);
     }
-    std::cout << "total = " << total << endl;
     auto end = clock.now();
+    std::cout << "total = " << total << endl;
     long ms = duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << ms << "ms\n";
     std::cout << duration_cast<nanoseconds>(end-start).count()/iters << "ns/sel\n";
@@ -119,6 +121,7 @@ class Test {
     std::chrono::high_resolution_clock clock;
     auto start = clock.now();
     BitVector vec(v);
+    std::cout << double(vec.byteSize() * 8) / vec.size() << " bits/bit\n";
     // std::cout << double(vec.extra_bits()) / vec.size() << " extra/bit\n";
     auto end = clock.now();
     long ms = duration_cast<std::chrono::milliseconds>(end-start).count();
@@ -138,6 +141,8 @@ void test(size_t iters) {
 }
 
 int main() {
-  test<FastBitVector>(10000);
-  test<RRRBitVector<63>>(10000);
+  std::cout << "===  FastBitVector:\n";
+  test<FastBitVector>(100000);
+  std::cout << "===  RRRBitVector:\n";
+  test<RRRBitVector<63>>(100000);
 }

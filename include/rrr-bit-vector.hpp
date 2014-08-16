@@ -5,9 +5,9 @@ template<int BlockSize = 63>
 class RRRBitVector {
  public:
   // Must be multiple of BlockSize
-  const size_t SuperBlockSize = BlockSize * 8;
+  const size_t SuperBlockSize = BlockSize * 32;
   // Can be modified
-  const size_t SelectSample = SuperBlockSize;
+  const size_t SelectSample = SuperBlockSize * 2;
   RRRBitVector(const MutableBitVector& vec) {
     size_ = vec.size();
     int bits_for_class = WordLog2(BlockSize) + 1;
@@ -20,9 +20,17 @@ class RRRBitVector {
     size_t count[2] = {0, 0};
     select_samples_[0].push_back(0);
     select_samples_[1].push_back(0);
+    popcount_ = 0;
+
+    for (int k = 0; k <= BlockSize; ++k) {
+      Word possible = Binomial(k, BlockSize);
+      k_len_[k] = WordLog2(possible) + 1;
+    }
+
     for (size_t i = 0; i < blocks; ++i) {
       Word w = vec.getWord(i * BlockSize, BlockSize);
       int k = WordPopCount(w);
+      popcount_ += k;
       count[0] += BlockSize - k;
       count[1] += k;
       block_class_.set(i, k);
@@ -62,11 +70,14 @@ class RRRBitVector {
     }
     assert(block == target_block);
     int k = block_class_.get(block);
-    Word d = decode(k, idx_.getWord(pos, kLen(k)));
-    return (d >> block_offset) & 1;
+    return decodeIndex(k, idx_.getWord(pos, kLen(k)), block_offset);
   }
 
   size_t rank(size_t i, bool bit) const {
+    if (i == size()) {
+      return count(bit);
+    }
+    assert (i < size());
     size_t target_block = i / BlockSize;
     size_t block_offset = i % BlockSize;
     size_t super_block = i / SuperBlockSize;
@@ -79,13 +90,12 @@ class RRRBitVector {
       pos += kLen(k);
       ++block;
     }
-    assert(block == target_block);
     int k = block_class_.get(block);
-    Word d = decode(k, idx_.getWord(pos, kLen(k)));
-    rank += WordPopCount(d & ((1ull << block_offset) - 1));
-    if (bit) return rank;
-    else return i - rank;
+    int r = decodeRank(k, idx_.getWord(pos, kLen(k)), block_offset);
+    rank += r;
+    return bit ? rank : i - rank;
   }
+
   size_t select(size_t x, bool bit) const {
     if (x == 0) return 0;
     size_t sample_idx = x / SelectSample;
@@ -120,9 +130,8 @@ class RRRBitVector {
       int k = block_class_.get(block);
       int r = bit ? k : BlockSize - k;
       if (rank + r >= x) {
-        Word d = decode(k, idx_.getWord(pos, kLen(k)));
-        if (!bit) d = ~d;
-        idx += WordSelect(d, x - rank);
+        int d = decodeSelect(k, idx_.getWord(pos, kLen(k)), x - rank, bit);
+        idx += d;
         return idx;
       }
       rank += r;
@@ -134,13 +143,73 @@ class RRRBitVector {
   size_t size() const {
     return size_;
   }
-
+  size_t byteSize() const {
+    return sizeof(*this) + idx_.byteSize() + block_class_.byteSize() +
+        super_rank_.size() * sizeof(Word) +
+        select_samples_[0].size() * sizeof(Word) +
+        select_samples_[1].size() * sizeof(Word) +
+        super_pos_.size() * sizeof(Word);
+  }
+  size_t count(bool bit) const {
+    if (bit) return popcount_;
+    return size() - popcount_;
+  }
  private:
   friend class RRRBitVectorTest;
 
+  static bool decodeIndex(int k, Word code, int idx) {
+    if (k == 0) return 0;
+    if (k == BlockSize) return 1;
+    bool ret = 0;
+    for (int t = 0; t <= idx; ++t) {
+      Word b = Binomial(k, BlockSize - t - 1);
+      ret = 0;
+      if (code >= b) {
+        ret = 1;
+        code -= b;
+        k --;
+      }
+    }
+    return ret;
+  }
+  static Word decodeSelect(int k, Word code, int x, bool bit) {
+    Word rank = 0;
+    if (x == 0) return 0;
+    if (k == 0) return bit ? 0 : x;
+    if (k == BlockSize) return bit ? x : 0;
+    for (int t = 0; t < BlockSize; ++t) {
+      // if (code == 0) break;
+      Word b = Binomial(k, BlockSize - t - 1);
+      if (code >= b) {
+        rank ++;
+        code -= b;
+        k --;
+      }
+      size_t r = bit ? rank : t + 1 - rank;
+      if (r >= x) return t + 1;
+    }
+    assert(false);
+    return BlockSize;
+  }
+  static Word decodeRank(int k, Word code, int idx) {
+    Word ret = 0;
+    if (k == 0) return 0;
+    if (k == BlockSize) return idx;
+    for (int t = 0; t < idx; ++t) {
+      // if (code == 0) break;
+      Word b = Binomial(k, BlockSize - t - 1);
+      if (code >= b) {
+        ret ++;
+        code -= b;
+        k --;
+      }
+    }
+    return ret;
+  }
+#if 0
+  // For debugging purposes
   static Word decode(int k, Word code) {
     Word ret = 0;
-    int orig_k = k;
     if (k == 0) return 0;
     if (k == BlockSize) return (1ull << BlockSize) - 1;
     for (int t = 0; t < BlockSize; ++t) {
@@ -152,9 +221,10 @@ class RRRBitVector {
         k --;
       }
     }
-    assert (WordPopCount(ret) == orig_k);
     return ret;
   }
+#endif
+
   static Word encode(int k, Word x) {
     Word ret = 0;
     if (k == 0) return 0;
@@ -168,13 +238,14 @@ class RRRBitVector {
     }
     return ret;
   }
-  static int kLen(int k) {
-    Word possible = Binomial(k, BlockSize);
-    return WordLog2(possible) + 1;
+  int kLen(int k) const {
+    return k_len_[k];
   }
-  std::vector<Word> super_rank_;
+  size_t popcount_;
+  int k_len_[BlockSize + 1];
   std::vector<Word> select_samples_[2];
   std::vector<Word> super_pos_;
+  std::vector<Word> super_rank_;
   IntArray block_class_;
   size_t size_;
   MutableBitVector idx_;
