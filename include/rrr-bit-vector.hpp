@@ -73,7 +73,7 @@ class RRRBitVector {
     return decodeIndex(k, idx_.getWord(pos, kLen(k)), block_offset);
   }
 
-  size_t rank(size_t i, bool bit) const {
+  size_t rank(size_t i, bool bit) const __attribute__((noinline)) {
     if (i == size()) {
       return count(bit);
     }
@@ -82,7 +82,7 @@ class RRRBitVector {
     size_t block_offset = i % BlockSize;
     size_t super_block = i / SuperBlockSize;
     Word pos = super_pos_[super_block];
-    size_t block = super_block * SuperBlockSize / BlockSize;
+    size_t block = super_block * (SuperBlockSize / BlockSize);
     size_t rank = super_rank_[super_block];
     while (block < target_block) {
       int k = block_class_.get(block);
@@ -96,7 +96,7 @@ class RRRBitVector {
     return bit ? rank : i - rank;
   }
 
-  size_t select(size_t x, bool bit) const {
+  size_t select(size_t x, bool bit) const __attribute__((noinline)) {
     if (x == 0) return 0;
     size_t sample_idx = x / SelectSample;
     // Binary search super blocks:
@@ -119,14 +119,14 @@ class RRRBitVector {
     }
 
     Word super_block = left_sb;
-    Word block = super_block * SuperBlockSize / BlockSize;
+    Word block = super_block * (SuperBlockSize / BlockSize);
     size_t pos = super_pos_[super_block];
     size_t rank = super_rank_[super_block];
     size_t idx = block * BlockSize;
     if (!bit) rank = idx - rank;
     while (true) {
       assert(block < block_class_.size());
-      assert(block < right_sb *SuperBlockSize /  BlockSize);
+      assert(block < right_sb * (SuperBlockSize /  BlockSize));
       int k = block_class_.get(block);
       int r = bit ? k : BlockSize - k;
       if (rank + r >= x) {

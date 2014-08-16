@@ -85,7 +85,7 @@ class Test {
 
   void SelectSparse(int iters) {
     const size_t size = 1<<25;
-    const unsigned int rarity = 1<<10;
+    const unsigned int rarity = 1<<7;
     std::cout << "Select sparse:\n";
     using namespace std::chrono;
     std::mt19937_64 mt(3);
@@ -114,9 +114,9 @@ class Test {
     std::cout << "Construct " << size << " bits:\n";
     using namespace std::chrono;
     std::mt19937_64 mt(time(0));
-    MutableBitVector v;
-    for (size_t j = 0; j < size; ++j) {
-      v.push_back(mt()%2);
+    MutableBitVector v(size);
+    for (size_t j = 0; j < size; j += 64) {
+      v.setWord(j, mt(), 64);
     }
     std::chrono::high_resolution_clock clock;
     auto start = clock.now();
@@ -126,7 +126,8 @@ class Test {
     auto end = clock.now();
     long ms = duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout << ms << "ms\n";
-    std::cout << (size / (8 * 1024 * 1024.0)) / (ms / 1000.0) << " MB/s\n";
+    long ns = duration_cast<nanoseconds>(end-start).count();
+    std::cout << (size / (8 * 1024 * 1024.0)) / (ns / 1000000000.0) << " MB/s\n";
   }
 };
 
@@ -142,7 +143,7 @@ void test(size_t iters) {
 
 int main() {
   std::cout << "===  FastBitVector:\n";
-  test<FastBitVector>(100000);
+  test<FastBitVector>(1000000);
   std::cout << "===  RRRBitVector:\n";
-  test<RRRBitVector<63>>(100000);
+  test<RRRBitVector<63>>(1000000);
 }
