@@ -4,12 +4,12 @@ project(succinct_test CXX C)
 
 add_subdirectory(gtest)
 
-add_definitions(-g -O0)
+add_definitions(-g -O0 -Wall)
 
 file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 add_executable(test ${TEST_SRC_FILES})
 
-add_dependencies(test googletest)
+add_dependencies(test googletest libdivsufsort)
 target_link_libraries(test
   gtest
   gtest_main

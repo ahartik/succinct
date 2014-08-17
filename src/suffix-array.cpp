@@ -31,7 +31,9 @@ SuffixArray::SuffixArray(const char* text, size_t len) {
     Index k = sa_inv[i];
     if (k == 0) continue;
     Index j = sa_[k - 1];
-    while (i + l < len && j + l < len && text[i + l] == text[j + l]) ++l;
+    while (i + l < int(len) && j + l < int(len) && text[i + l] == text[j + l]) {
+      ++l;
+    }
     lcp_[k] = l;
     if (l > 0) --l;
   }
