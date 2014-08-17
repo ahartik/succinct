@@ -95,5 +95,4 @@ TYPED_TEST(DeltaVectorTest, Search) {
       EXPECT_LT(dv[p-1], n);
     }
   }
-  std::cout << "check = " << check << "\n";
 };

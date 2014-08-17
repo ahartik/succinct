@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.6.0)
 	
 ## Project information ##
 project(succinct CXX C)
-
 include_directories(include)
 include_directories(libdivsufsort-2.0.1/include)
 
@@ -15,8 +14,11 @@ ADD_DEFINITIONS(
       -g
        )
 
-add_library(succinct lib/fast-bit-vector.cpp lib/bit-utils.cpp)
+add_library(succinct 
+  lib/fast-bit-vector.cpp
+  lib/bit-utils.cpp
+  lib/suffix-array.cpp
+  )
 
-add_subdirectory(test)
 add_subdirectory(benchmark)
-
+add_subdirectory(test)

@@ -6,6 +6,7 @@
 #include "rle-delta-vector.hpp"
 #include "sparse-vector.hpp"
 #include "rle-sparse-vector.hpp"
+#include "suffix-array.hpp"
 
 template<typename T>
 class CSATest : public ::testing::Test {
@@ -17,7 +18,8 @@ typedef ::testing::Types<
   CSA<RLEDeltaVector<>>,
   CSA<SparseVector>,
   CSA<RLESparseVector>,
-  WtCSA
+  WtCSA,
+  SuffixArray
   > CSATypes;
 
 TYPED_TEST_CASE(CSATest, CSATypes);
@@ -34,6 +36,10 @@ TYPED_TEST(CSATest, Locate) {
   }
   EXPECT_NE(text.substr(sa.sa(range.second), pattern.size()), pattern);
   EXPECT_NE(text.substr(sa.sa(range.first-1), pattern.size()), pattern);
+
+  // no wraparaund :)
+  range = sa.locate("taan");
+  EXPECT_EQ(range.first, range.second);
 }
 
 TYPED_TEST(CSATest, Nulls) {
