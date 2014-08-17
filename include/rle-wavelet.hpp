@@ -136,6 +136,14 @@ class RLEWavelet {
     return total;
   }
 
+  size_t byteSize() const {
+    size_t total = head_.byteSize();
+    total += run_end_.byteSize();
+    total += run_len_.byteSize();
+    total += num_rank_.byteSize();
+    return total;
+  }
+
   uint64_t operator[](size_t i) const {
     return head_[headPos(i)];
   }

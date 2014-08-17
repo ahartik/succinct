@@ -327,6 +327,10 @@ class BalancedWavelet {
   size_t bitSize() const {
     return tree_.bitSize() + sizeof(*this) * 8;
   }
+
+  size_t byteSize() const {
+    return tree_.byteSize() + sizeof(*this);
+  }
  private:
 
   BitVector tree_;

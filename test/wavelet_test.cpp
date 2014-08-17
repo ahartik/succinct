@@ -1,6 +1,7 @@
 #include "balanced-wavelet.hpp"
 #include "skewed-wavelet.hpp"
 #include "rle-wavelet.hpp"
+#include "rrr-bit-vector.hpp"
 
 #include <gtest/gtest.h>
 #include <iostream>
@@ -32,11 +33,17 @@ class WaveletTest : public ::testing::Test {
 
 };
 
+typedef RRRBitVector<63> CBV;
+
 typedef ::testing::Types<
   BalancedWavelet<>,
   SkewedWavelet<>,
   RLEWavelet<BalancedWavelet<>>,
-  RLEWavelet<SkewedWavelet<>>
+  RLEWavelet<SkewedWavelet<>>,
+  BalancedWavelet<CBV>,
+  SkewedWavelet<CBV>,
+  RLEWavelet<BalancedWavelet<CBV>>,
+  RLEWavelet<SkewedWavelet<CBV>>
   > WaveletTypes;
 
 TYPED_TEST_CASE(WaveletTest, WaveletTypes );

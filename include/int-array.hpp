@@ -23,7 +23,10 @@ class IntArray {
     o.size_ = 0;
   }
 
-  const IntArray& operator=(IntArray&& o) {
+  IntArray(const IntArray& o) = default;
+  IntArray& operator=(const IntArray& o) = default;
+
+  IntArray& operator=(IntArray&& o) {
     bv_ = std::move(o.bv_);
     size_ = o.size_;
     width_ = o.width_;

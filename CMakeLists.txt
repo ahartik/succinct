@@ -12,6 +12,7 @@ ADD_DEFINITIONS(
       -Wall
       -march=native
       -O3
+      -g
        )
 
 add_library(succinct lib/fast-bit-vector.cpp lib/bit-utils.cpp)

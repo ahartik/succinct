@@ -1,5 +1,6 @@
 #include "skewed-wavelet.hpp"
 #include "balanced-wavelet.hpp"
+#include "rrr-bit-vector.hpp"
 #include "rle-wavelet.hpp"
 
 #include <iostream>
@@ -37,6 +38,8 @@ void RankLE(int iters, int m, const char* name) {
   
   auto end = clock.now();
   std::cout << duration_cast<nanoseconds>(end-start).count()/iters << "ns/rank\n";
+  size_t bytes = wt.byteSize();
+  std::cout << "size = " << bytes << "B\n";
 }
 
 int main() {
@@ -52,4 +55,7 @@ int main() {
   cout << endl;
   RankLE<RLEWavelet<SkewedWavelet<>>>(iters, 32, "RLEWavelet<SkewedWavelet>");
   RankLE<RLEWavelet<SkewedWavelet<>>>(iters, 1<<10, "RLEWavelet<SkewedWavelet>");
+  
+  typedef RRRBitVector<63> RRR;
+  RankLE<BalancedWavelet<RRR>>(iters, 32, "BalancedWavelet<RRR>");
 }
