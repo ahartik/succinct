@@ -120,9 +120,6 @@ class FastBitVector {
     return size() - popcount_;
   }
   size_t extra_bits() const;
-  size_t bitSize() const {
-    return size() + extra_bits();
-  }
   size_t byteSize() const {
     return bv_.byteSize() + extra_bits() / 8;
   }

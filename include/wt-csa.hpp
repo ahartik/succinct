@@ -116,7 +116,7 @@ class WtCSA {
 
   size_t byteSize() const {
     return sizeof(*this) + sample_.size() * sizeof(sample_[0]) +
-        wt_.bitSize() / 8;
+        wt_.byteSize();
   }
 
  private:

@@ -31,7 +31,7 @@ class SparseVector {
   }
 
   size_t byteSize() const {
-    return sizeof(*this) + bits_.bitSize()/ 8;
+    return sizeof(*this) + bits_.byteSize();
   }
   size_t sampleSize() const {
     return 0;

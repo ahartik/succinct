@@ -105,10 +105,6 @@ class SparseBitVector {
     return size_ - pop_;
   }
 
-  size_t bitSize() const {
-    return w_ * pop_ + high_bits_.bitSize();
-  }
-
   size_t byteSize() const {
     return  sizeof(*this) + low_arr_.byteSize() + high_bits_.byteSize();
   }

@@ -8,7 +8,7 @@ template<int BlockSize = 63>
 class RRRBitVector {
  public:
   // Must be multiple of BlockSize
-  static const size_t SuperBlockSize = BlockSize * 32;
+  static const size_t SuperBlockSize = BlockSize * 64;
   // Can be modified
   static const size_t SelectSample = SuperBlockSize * 2;
   RRRBitVector() {

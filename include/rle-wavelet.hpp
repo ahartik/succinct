@@ -128,14 +128,6 @@ class RLEWavelet {
     return run_end_.size();
   }
 
-  size_t bitSize() const {
-    size_t total = head_.bitSize();
-    total += run_end_.bitSize();
-    total += run_len_.bitSize();
-    total += num_rank_.bitSize();
-    return total;
-  }
-
   size_t byteSize() const {
     size_t total = head_.byteSize();
     total += run_end_.byteSize();

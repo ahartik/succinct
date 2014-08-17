@@ -149,8 +149,8 @@ class RLEDeltaVector {
            
   }
   size_t sampleSize() const {
-    return (block_pos_.bitSize() + block_val_.bitSize() +
-           block_idx_.bitSize()) / 8;
+    return (block_pos_.byteSize() + block_val_.byteSize() +
+           block_idx_.byteSize()) / 8;
   }
  private:
   uint64_t block_pos(size_t i) const {

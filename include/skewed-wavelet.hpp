@@ -109,14 +109,6 @@ class SkewedWavelet {
   size_t size() const {
     return wt_pick_[0].size();
   }
-  size_t bitSize() const {
-    size_t ret = sizeof(*this) * 8;
-    for (size_t i = 0; i < wt_pick_.size(); ++i) {
-      ret += wt_pick_[i].bitSize();
-      ret += wt_[i].bitSize();
-    }
-    return ret;
-  }
   size_t byteSize() const {
     size_t ret = sizeof(*this);
     for (size_t i = 0; i < wt_pick_.size(); ++i) {

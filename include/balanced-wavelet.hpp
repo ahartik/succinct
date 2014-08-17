@@ -324,9 +324,6 @@ class BalancedWavelet {
   size_t size() const {
     return size_;
   }
-  size_t bitSize() const {
-    return tree_.bitSize() + sizeof(*this) * 8;
-  }
 
   size_t byteSize() const {
     return tree_.byteSize() + sizeof(*this);

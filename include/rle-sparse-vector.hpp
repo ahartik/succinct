@@ -12,7 +12,7 @@ class RLESparseVector {
       uint64_t last = vec[i];
       val.push_back(last);
       pos.push_back(i);
-      for (++i; vec[i] - last == 1 && i < vec.size(); ++i) {
+      for (++i; i < vec.size() && vec[i] - last == 1; ++i) {
         last = vec[i];
       }
     }
@@ -64,7 +64,7 @@ class RLESparseVector {
 
   size_t byteSize() const {
     return sizeof(*this) + 
-        (val_.bitSize() + pos_.bitSize()) / 8;
+        (val_.byteSize() + pos_.byteSize());
   }
   size_t sampleSize() const {
     return 0;
