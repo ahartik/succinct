@@ -20,7 +20,6 @@ ADD_DEFINITIONS(
       -march=native
       -Wall
       -O3
-      -g
        )
 
 file(GLOB LIB_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -29,4 +28,5 @@ add_dependencies(succinct libdivsufsort)
 
 add_subdirectory(benchmark)
 add_subdirectory(doc-counter)
+add_subdirectory(entropy)
 add_subdirectory(test)

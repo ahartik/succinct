@@ -6,9 +6,6 @@
 
 FastBitVector::FastBitVector() {
   popcount_ = 0;
-  rank_samples_ = nullptr;
-  select_samples_[0] = nullptr;
-  select_samples_[1] = nullptr;
 }
 
 FastBitVector::FastBitVector(const MutableBitVector& data) : bv_(data)
@@ -29,7 +26,7 @@ void FastBitVector::init() {
   }
 
   // Init rank samples.
-  rank_samples_ = new RankBlock[2 + size() / RankSample];
+  rank_samples_.resize(2 + size() / RankSample);
   rank_samples_[0].abs = 0;
   size_t sum = 0;
   for (size_t i = 0; i <= size()/RankSample; i++) {
@@ -55,8 +52,8 @@ void FastBitVector::init() {
   }
 
   // Init select samples.
-  select_samples_[1] = new uint32_t[2 + popcount_ / SelectSample];
-  select_samples_[0] = new uint32_t[2 + (size() - popcount_) / SelectSample];
+  select_samples_[1].resize(2 + popcount_ / SelectSample);
+  select_samples_[0].resize(2 + (size() - popcount_) / SelectSample);
   size_t sums[2] = {0, 0};
   size_t idx[2] = {1, 1};
   select_samples_[0][0] = select_samples_[1][0] = 0;
@@ -80,14 +77,21 @@ void FastBitVector::init() {
 }
 
 FastBitVector::FastBitVector(FastBitVector&& other) 
-    : popcount_(0),
-      rank_samples_(nullptr),
-      select_samples_{nullptr,nullptr} {
+    : popcount_(0) {
   swap(*this, other);
 }
 
-const FastBitVector& FastBitVector::operator=(FastBitVector&& other) {
+FastBitVector& FastBitVector::operator=(FastBitVector&& other) {
   swap(*this, other);
+  return *this;
+}
+
+FastBitVector& FastBitVector::operator=(const FastBitVector& other) {
+  popcount_ = other.popcount_;
+  bv_ = other.bv_;
+  rank_samples_ = other.rank_samples_;
+  select_samples_[0] = other.select_samples_[0];
+  select_samples_[1] = other.select_samples_[1];
   return *this;
 }
 
@@ -100,11 +104,6 @@ size_t FastBitVector::extra_bits() const {
   return r * WordBits + sizeof(FastBitVector) * 8;
 }
 
-FastBitVector::~FastBitVector() {
-  delete[] rank_samples_;
-  delete[] select_samples_[0];
-  delete[] select_samples_[1];
-}
 void swap(FastBitVector& a, FastBitVector& b) {
   using std::swap;
   swap(a.popcount_, b.popcount_);

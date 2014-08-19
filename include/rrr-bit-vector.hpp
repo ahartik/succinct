@@ -1,4 +1,5 @@
 #include "int-array.hpp"
+#include "sparse-vector.hpp"
 #include "mutable-bit-vector.hpp"
 
 #define RANK_SELECT_ATTRIB
@@ -8,9 +9,10 @@ template<int BlockSize = 63>
 class RRRBitVector {
  public:
   // Must be multiple of BlockSize
-  static const size_t SuperBlockSize = BlockSize * 64;
+  static const size_t SuperBlockSize = BlockSize * 16;
   // Can be modified
   static const size_t SelectSample = SuperBlockSize * 2;
+
   RRRBitVector() {
     size_ = 0;
     for (int k = 0; k <= BlockSize; ++k) {
@@ -26,17 +28,21 @@ class RRRBitVector {
       k_len_[k] = WordLog2(possible) + 1;
     }
     popcount_ = 0;
+    std::vector<Word> select_samples[2];
+    std::vector<Word> super_pos;
+    std::vector<Word> super_rank;
 
     int bits_for_class = WordLog2(BlockSize) + 1;
     size_t blocks = (vec.size() + BlockSize - 1) / BlockSize;
     block_class_ = IntArray(bits_for_class, blocks);
     size_t super_blocks = (vec.size() + SuperBlockSize - 1) / SuperBlockSize;
-    super_rank_.resize(super_blocks);
-    super_pos_.resize(super_blocks);
+
+    super_rank.resize(super_blocks);
+    super_pos.resize(super_blocks);
     Word rank = 0;
     size_t count[2] = {0, 0};
-    select_samples_[0].push_back(0);
-    select_samples_[1].push_back(0);
+    select_samples[0].push_back(0);
+    select_samples[1].push_back(0);
 
     for (size_t i = 0; i < blocks; ++i) {
       Word w = vec.getWord(i * BlockSize, BlockSize);
@@ -54,17 +60,22 @@ class RRRBitVector {
       assert (idx_.getWord(s, l) == c);
       if (i % (SuperBlockSize / BlockSize) == 0) {
         size_t si  = i / (SuperBlockSize / BlockSize);
-        super_rank_[si] = rank;
-        super_pos_[si] = s;
+        super_rank[si] = rank;
+        super_pos[si] = s;
       }
       rank += k;
       for (int b = 0; b < 2; ++b) {
         if (count[b] >= SelectSample) {
           count[b] -= SelectSample;
-          select_samples_[b].push_back(i * BlockSize / SuperBlockSize);
+          select_samples[b].push_back(i * BlockSize / SuperBlockSize);
         }
       }
     }
+
+    select_samples_[0] = SparseVector(select_samples[0]);
+    select_samples_[1] = SparseVector(select_samples[1]);
+    super_rank_ = SparseVector(super_rank);
+    super_pos_ = SparseVector(super_pos);
     idx_.trim();
   }
   RRRBitVector(RRRBitVector<BlockSize>&& o) {
@@ -115,12 +126,8 @@ class RRRBitVector {
     }
     int k = block_class_.get(block);
     Word code = idx_.getWord(pos, kLen(k));
-#if 1
     int r = decodeRank(k, code, block_offset);
     rank += r;
-#else
-    rank += code;
-#endif
     return bit ? rank : i - rank;
   }
 
@@ -172,11 +179,15 @@ class RRRBitVector {
     return size_;
   }
   size_t byteSize() const {
-    return sizeof(*this) + idx_.byteSize() + block_class_.byteSize() +
-        super_rank_.size() * sizeof(Word) +
-        select_samples_[0].size() * sizeof(Word) +
-        select_samples_[1].size() * sizeof(Word) +
-        super_pos_.size() * sizeof(Word);
+    size_t main = idx_.byteSize();
+    size_t extra =
+        super_rank_.byteSize() +
+        select_samples_[0].byteSize() +
+        select_samples_[1].byteSize() +
+        super_pos_.byteSize() +
+        + sizeof(*this) - sizeof(idx_);
+    std::cout << "RRR overhead = " << double(extra) / main << "\n";
+    return extra + main;
   }
   size_t count(bool bit) const {
     if (bit) return popcount_;
@@ -283,9 +294,9 @@ class RRRBitVector {
   }
   size_t popcount_;
   int k_len_[BlockSize + 1];
-  std::vector<Word> select_samples_[2];
-  std::vector<Word> super_pos_;
-  std::vector<Word> super_rank_;
+  SparseVector select_samples_[2];
+  SparseVector super_pos_;
+  SparseVector super_rank_;
   IntArray block_class_;
   size_t size_;
   MutableBitVector idx_;

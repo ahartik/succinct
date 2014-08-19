@@ -32,8 +32,24 @@ class SparseBitVector {
     swap(*this, o);
   }
 
-  const SparseBitVector& operator=(SparseBitVector&& o) {
+  SparseBitVector(const SparseBitVector& o) 
+      : w_(o.w_),
+        pop_(o.pop_),
+        size_(o.size_),
+        low_arr_(o.low_arr_),
+        high_bits_(o.high_bits_) 
+  { }
+
+  SparseBitVector& operator=(SparseBitVector&& o) {
     swap (*this, o);
+    return *this;
+  }
+  SparseBitVector& operator=(const SparseBitVector& o) {
+    w_ = o.w_;
+    pop_ = o.pop_;
+    size_ = o.size_;
+    low_arr_ = o.low_arr_;
+    high_bits_ = o.high_bits_;
     return *this;
   }
 

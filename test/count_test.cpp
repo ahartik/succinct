@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "rrr-bit-vector.hpp"
-#include "rle-wavelet.hpp"
-#include "ilcp-count.hpp"
 #include "brute-count.hpp"
+#include "ilcp-count.hpp"
+#include "rle-ilcp-count.hpp"
+#include "rle-wavelet.hpp"
+#include "rrr-bit-vector.hpp"
 #include "sada-count.hpp"
 #include "sada-sparse-count.hpp"
 
@@ -26,7 +27,8 @@ typedef ::testing::Types<
   SadaCount<FastBitVector>,
   SadaCount<RRR>,
   SadaSparseCount<true>,
-  SadaSparseCount<false>
+  SadaSparseCount<false>,
+  RLEILCPCount
   > CountTypes;
 
 TYPED_TEST_CASE(CountTest, CountTypes );

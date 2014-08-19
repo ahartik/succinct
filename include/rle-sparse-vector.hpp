@@ -21,7 +21,6 @@ class RLESparseVector {
       val.push_back(1);
     else
       val.push_back(vec.back() + 1);
-    size_ = vec.size();
     val_ = SparseBitVector(val.begin(), val.end());
     pos_ = SparseBitVector(pos.begin(), pos.end());
     size_ = vec.size();

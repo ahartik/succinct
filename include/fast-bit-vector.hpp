@@ -24,9 +24,10 @@ class FastBitVector {
   FastBitVector();
   explicit FastBitVector(const MutableBitVector& bv);
   explicit FastBitVector(const MutableBitVector&& bv);
-  FastBitVector(const FastBitVector& other) = delete;
+  FastBitVector(const FastBitVector& other) : FastBitVector(other.bv_) { }
   FastBitVector(FastBitVector&& other);
-  const FastBitVector& operator=(FastBitVector&& other);
+  FastBitVector& operator=(FastBitVector&& other);
+  FastBitVector& operator=(const FastBitVector& other);
 
   bool operator[](size_t pos) const {
     return bv_[pos];
@@ -124,7 +125,8 @@ class FastBitVector {
     return bv_.byteSize() + extra_bits() / 8;
   }
 
-  ~FastBitVector();
+  ~FastBitVector() {
+  }
   friend void swap(FastBitVector& a, FastBitVector& b);
  private:
   size_t subBlockRank(size_t block, int sub_block) const {
@@ -139,10 +141,10 @@ class FastBitVector {
     uint64_t rel;
   };
 
-  RankBlock* rank_samples_;
+  std::vector<RankBlock> rank_samples_;
   // uint32_t is enough for 2048 * 2^32 bits = 1TB
   // Should be good enough for few years.
-  uint32_t* select_samples_[2];
+  std::vector<uint32_t> select_samples_[2];
 };
 
 #endif

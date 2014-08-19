@@ -1,12 +1,18 @@
 #pragma once
 #include "sparse-bit-vector.hpp"
 
+#include <vector>
+
 // Class compatible with deltavector using SparseBitVectors
 class SparseVector {
  public:
   template<typename IntT>
-  SparseVector(const std::vector<IntT>& vec) : bits_(vec.begin(), vec.end()) {
+  explicit SparseVector(const std::vector<IntT>& vec) : bits_(vec.begin(), vec.end()) {
     size_ = vec.size();
+  }
+
+  SparseVector() {
+    size_ = 0;
   }
 
   SparseVector(const SparseVector& v) = default;
@@ -14,6 +20,13 @@ class SparseVector {
       : bits_(std::move(v.bits_))
   {
     v.size_ = 0;
+  }
+  SparseVector& operator=(const SparseVector& v) = default;
+  SparseVector& operator=(SparseVector&& v) {
+    bits_ = std::move(v.bits_);
+    size_ = v.size_;
+    v.size_ = 0;
+    return *this;
   }
 
   size_t size() const {

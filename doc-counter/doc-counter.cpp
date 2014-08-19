@@ -4,6 +4,7 @@
 #include "brute-count.hpp"
 #include "sada-count.hpp"
 #include "sada-sparse-count.hpp"
+#include "rle-ilcp-count.hpp"
 
 #include <gflags/gflags.h>
 
@@ -16,10 +17,10 @@
 #include <unordered_map>
 #include <vector>
 
-DEFINE_string(structures, "balanced",
+DEFINE_string(structures, "sada_sparse",
               "Comma-separated list of tested structures. Available structures"
-              ": brute,balanced,skewed,rle,rle_skewed,balanced_rrr,skewed_rrr,"
-              "rle_rrr,rle_skewed_rrr,sada,sada_rrr"
+              ": brute,wt,wt_skewed,wt_rle,wt_rle_skewed,wt_rrr,wt_skewed_rrr,"
+              "wt_rle_rrr,wt_rle_skewed_rrr,rle,sada,sada_rrr,sada_sparse"
               );
 
 DEFINE_string(pattern_file, "",
@@ -104,7 +105,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 int main(int argc, char** argv) {
   gflags::SetUsageMessage(
-    "usage: ./doc_counter --structures struct1,struct2 --pattern_file pattern "
+    "usage: ./doc-counter --structures struct1,struct2 --pattern_file pattern "
     " --document_file documents"
       );
   gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -145,22 +146,24 @@ int main(int argc, char** argv) {
 
   typedef RRRBitVector<63> RRR;
   structFuncs["brute"] = &countPatterns<BruteCount>;
-  structFuncs["skewed"] = &countPatterns<ILCPCount<
+  structFuncs["wt_skewed"] = &countPatterns<ILCPCount<
       SkewedWavelet<>>>;
-  structFuncs["balanced"] = &countPatterns<ILCPCount<
+  structFuncs["wt_balanced"] = &countPatterns<ILCPCount<
       BalancedWavelet<>>>;
-  structFuncs["rle"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rle"] = &countPatterns<ILCPCount<
       RLEWavelet<BalancedWavelet<>>>>;
-  structFuncs["rle_skewed"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rle_skewed"] = &countPatterns<ILCPCount<
       RLEWavelet<SkewedWavelet<>>>>;
-  structFuncs["skewed_rrr"] = &countPatterns<ILCPCount<
+  structFuncs["wt_skewed_rrr"] = &countPatterns<ILCPCount<
       SkewedWavelet<RRR>>>;
-  structFuncs["balanced_rrr"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rrr"] = &countPatterns<ILCPCount<
       BalancedWavelet<RRR>>>;
-  structFuncs["rle_rrr"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rle_rrr"] = &countPatterns<ILCPCount<
       RLEWavelet<BalancedWavelet<RRR>>>>;
-  structFuncs["rle_skewed_rrr"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rle_skewed_rrr"] = &countPatterns<ILCPCount<
       RLEWavelet<SkewedWavelet<RRR>>>>;
+
+  structFuncs["rle"] = &countPatterns<RLEILCPCount>;
 
   structFuncs["sada"] = &countPatterns<SadaCount<FastBitVector>>;
   structFuncs["sada_rrr"] = &countPatterns<SadaCount<RRR>>;
