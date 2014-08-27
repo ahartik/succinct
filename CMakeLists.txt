@@ -19,7 +19,7 @@ ADD_DEFINITIONS(
       -std=c++11
       -march=native
       -Wall
-      -O3
+      -g
        )
 
 file(GLOB LIB_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)

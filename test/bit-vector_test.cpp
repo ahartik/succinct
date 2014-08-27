@@ -5,6 +5,7 @@
 #include "fast-bit-vector.hpp"
 #include "sparse-bit-vector.hpp"
 #include "rrr-bit-vector.hpp"
+#include "rle-bit-vector.hpp"
 
 
 template<typename T>
@@ -16,7 +17,8 @@ typedef ::testing::Types<
   FastBitVector,
   SparseBitVector,
   RRRBitVector<63>,
-  RRRBitVector<32>
+  RRRBitVector<32>,
+  RLEBitVector
   > BitVectorTypes;
 
 TYPED_TEST_CASE(BitVectorTest, BitVectorTypes);
@@ -81,13 +83,17 @@ TYPED_TEST(BitVectorTest, RandomSelect) {
 }
 
 TYPED_TEST(BitVectorTest, Index) {
-  MutableBitVector v(128);
+  MutableBitVector v(1024);
   for (int i = 0; i < v.size(); ++i) {
-    v[i] = i % 17 == 0;
+    if (i < v.size() / 2) {
+      v[i] = i % 17 == 0; 
+    } else {
+      v[i] = i % 17 != 0; 
+    }
   }
   TypeParam vec(v);
   for (size_t i = 0; i < v.size(); ++i) {
-    EXPECT_EQ(int(v[i]), int(vec[i]));
+    EXPECT_EQ(int(v[i]), int(vec[i])) << i;
   }
 }
 

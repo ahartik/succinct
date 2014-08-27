@@ -92,6 +92,7 @@ class BalancedWavelet {
     enc.croot.child[0] = nullptr;
     enc.croot.child[1] = nullptr;
     BitVector tree(init);
+    using std::swap;
     swap(tree_, tree);
   }
 
@@ -130,6 +131,7 @@ class BalancedWavelet {
       mask |= bit;
     }
     BitVector tree(init);
+    using std::swap;
     swap(tree_, tree);
   }
   

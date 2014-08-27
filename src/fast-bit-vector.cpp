@@ -52,8 +52,8 @@ void FastBitVector::init() {
   }
 
   // Init select samples.
-  select_samples_[1].resize(2 + popcount_ / SelectSample);
-  select_samples_[0].resize(2 + (size() - popcount_) / SelectSample);
+  select_samples_[1].resize(3 + popcount_ / SelectSample);
+  select_samples_[0].resize(3 + (size() - popcount_) / SelectSample);
   size_t sums[2] = {0, 0};
   size_t idx[2] = {1, 1};
   select_samples_[0][0] = select_samples_[1][0] = 0;

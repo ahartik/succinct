@@ -5,6 +5,7 @@
 #include "sada-count.hpp"
 #include "sada-sparse-count.hpp"
 #include "rle-ilcp-count.hpp"
+#include "rle-bit-vector.hpp"
 
 #include <gflags/gflags.h>
 
@@ -152,6 +153,10 @@ int main(int argc, char** argv) {
       BalancedWavelet<>>>;
   structFuncs["wt_rle"] = &countPatterns<ILCPCount<
       RLEWavelet<BalancedWavelet<>>>>;
+  structFuncs["wt_rlebv"] = &countPatterns<ILCPCount<
+      BalancedWavelet<RLEBitVector>>>;
+  structFuncs["wt_rlebv_skewed"] = &countPatterns<ILCPCount<
+      SkewedWavelet<RLEBitVector>>>;
   structFuncs["wt_rle_skewed"] = &countPatterns<ILCPCount<
       RLEWavelet<SkewedWavelet<>>>>;
   structFuncs["wt_skewed_rrr"] = &countPatterns<ILCPCount<

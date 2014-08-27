@@ -91,14 +91,14 @@ void all() {
 }
 
 int main() {
-//   std::cout << "----- CSA<DeltaVector<>>\n";
-//   all<CSA<DeltaVector<>>>();
+   std::cout << "----- CSA<DeltaVector<>>\n";
+   all<CSA<DeltaVector<>>>();
    std::cout << "----- CSA<SparseVector>\n";
    all<CSA<SparseVector>>();
-//   std::cout << "----- CSA<RLESparseVector>\n";
-//   all<CSA<RLESparseVector>>();
-//   std::cout << "----- CSA<RLEDeltaVector<128>>\n";
-//   all<CSA<RLEDeltaVector<128>>>();
+   std::cout << "----- CSA<RLESparseVector>\n";
+   all<CSA<RLESparseVector>>();
+   std::cout << "----- CSA<RLEDeltaVector<128>>\n";
+   all<CSA<RLEDeltaVector<128>>>();
 //   std::cout << "----- CSA<RLEDeltaVector<512>>\n";
 //   all<CSA<RLEDeltaVector<512>>>();
   std::cout << "----- WtCSA \n";

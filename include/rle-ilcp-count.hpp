@@ -36,7 +36,7 @@ class RLEILCPCount {
     size_t ret = 0;
     for (size_t i = 0; i < pos_.size(); ++i) {
       Index val = val_[i];
-      if (val >= pattern.size()) break;
+      if (size_t(val) >= pattern.size()) break;
       ret += pos_[i].lower_bound(range.second) -
              pos_[i].lower_bound(range.first);
     }
