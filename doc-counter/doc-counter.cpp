@@ -6,6 +6,8 @@
 #include "sada-sparse-count.hpp"
 #include "rle-ilcp-count.hpp"
 #include "rle-bit-vector.hpp"
+#include "delta-bit-vector.hpp"
+#include "rle-delta-vector.hpp"
 
 #include <gflags/gflags.h>
 
@@ -32,6 +34,8 @@ DEFINE_string(document_file, "",
 
 DEFINE_bool(print_counts, false,
             "Print counts to standard output. For debugging purposes.");
+
+const size_t kMB = 1024 * 1024;
 
 bool readBinaryFile(const std::string& filename, std::vector<char> *contents) {
   std::ifstream in(filename.c_str(), std::ios::in | std::ios::binary);
@@ -65,7 +69,12 @@ void countPatterns(const SuffixArray& sa,
     auto end = clock.now();
     std::cout << duration_cast<nanoseconds>(end-start).count()/patterns.size()<< "ns/locate\n";
   }
+  auto cons_start = clock.now();
   Counter counter(sa);
+  auto cons_end = clock.now();
+  std::cout << duration_cast<milliseconds>(cons_end-cons_start).count()
+            << "ms construction\n";
+     
   uint64_t checksum = 0;
   std::vector<int> counts(patterns.size());
   auto start = clock.now();
@@ -90,7 +99,8 @@ void countPatterns(const SuffixArray& sa,
     }
   }
 
-  std::cout << "size: " << counter.byteSize() << "\n";
+  size_t size = counter.byteSize();
+  std::cout << "size: " << size << " B = " << (size / double(kMB)) << " MB\n";
   std::cout << "checksum: " << checksum << "\n";
 }
 
@@ -155,7 +165,13 @@ int main(int argc, char** argv) {
       RLEWavelet<BalancedWavelet<>>>>;
   structFuncs["wt_rlebv"] = &countPatterns<ILCPCount<
       BalancedWavelet<RLEBitVector>>>;
-  structFuncs["wt_rlebv_skewed"] = &countPatterns<ILCPCount<
+  structFuncs["wt_rledv"] = &countPatterns<ILCPCount<
+      BalancedWavelet<DeltaBitVector<RLEDeltaVector<>>>
+      >>;
+  structFuncs["wt_skewed_rledv"] = &countPatterns<ILCPCount<
+      SkewedWavelet<DeltaBitVector<RLEDeltaVector<>>>
+      >>;
+  structFuncs["wt_skewed_rlebv"] = &countPatterns<ILCPCount<
       SkewedWavelet<RLEBitVector>>>;
   structFuncs["wt_rle_skewed"] = &countPatterns<ILCPCount<
       RLEWavelet<SkewedWavelet<>>>>;
@@ -172,7 +188,12 @@ int main(int argc, char** argv) {
 
   structFuncs["sada"] = &countPatterns<SadaCount<FastBitVector>>;
   structFuncs["sada_rrr"] = &countPatterns<SadaCount<RRR>>;
+  structFuncs["sada_rle"] = &countPatterns<SadaCount<RLEBitVector>>;
+  structFuncs["sada_rledv"] = &countPatterns<SadaCount<
+      DeltaBitVector<RLEDeltaVector<>>
+      >>;
   structFuncs["sada_sparse"] = &countPatterns<SadaSparseCount<1>>;
+  structFuncs["sada_sparse_rrr"] = &countPatterns<SadaSparseCount<1, RRR>>;
   structFuncs["sada_sparse_simpler"] = &countPatterns<SadaSparseCount<0>>;
   
   for (const std::string& s : split(FLAGS_structures, ',')) {

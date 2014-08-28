@@ -53,8 +53,10 @@ class RLEILCPCount {
     ret += val_.size() * sizeof(Index);
     for (size_t i = 0; i < pos_.size(); ++i) {
       ret += pos_[i].byteSize();
+#if 0
       std::cout << "pos(" << val_[i] << ") - " << pos_[i].byteSize()
                 << " / " << pos_[i].size() << "\n";
+#endif
     }
     ret += sizeof(*this);
     return ret;

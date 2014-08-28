@@ -6,7 +6,8 @@
 #include "sparse-bit-vector.hpp"
 #include "rrr-bit-vector.hpp"
 #include "rle-bit-vector.hpp"
-
+#include "delta-bit-vector.hpp"
+#include "rle-delta-vector.hpp"
 
 template<typename T>
 class BitVectorTest : public ::testing::Test {
@@ -18,7 +19,9 @@ typedef ::testing::Types<
   SparseBitVector,
   RRRBitVector<63>,
   RRRBitVector<32>,
-  RLEBitVector
+  RLEBitVector,
+  DeltaBitVector<>,
+  DeltaBitVector<RLEDeltaVector<>>
   > BitVectorTypes;
 
 TYPED_TEST_CASE(BitVectorTest, BitVectorTypes);

@@ -9,6 +9,9 @@ template<size_t BlockSize = 128>
 class RLEDeltaVector {
  public:
   static constexpr uint64_t BLOCK_SIZE = BlockSize;
+  RLEDeltaVector() {
+    size_ = 0;
+  }
   template<typename IntT>
   RLEDeltaVector(const std::vector<IntT>& vec) {
     DeltaEncoder enc(&bits_);
@@ -55,8 +58,6 @@ class RLEDeltaVector {
     }
     block_pos.push_back(enc.tell());
     enc.finish();
-   //  std::cout << bits_.size() * 8 << " bytes for encoding \n";
-   //  std::cout << block_pos_.size() * 16 << " bytes for block samples \n";
     // trim vector
     bits_ = std::vector<uint64_t>(bits_);
     block_pos_ = SparseBitVector(block_pos.begin(), block_pos.end());
@@ -73,6 +74,25 @@ class RLEDeltaVector {
         size_(v.size())
   {
     v.size_ = 0;
+  }
+
+  RLEDeltaVector& operator=(const RLEDeltaVector& o) {
+    bits_ = o.bits_;
+    block_pos_ = o.block_pos_;
+    block_val_ = o.block_val_;
+    block_idx_ = o.block_idx_;
+    size_ = o.size_;
+    return *this;
+  }
+
+  RLEDeltaVector& operator=(RLEDeltaVector&& o) {
+    bits_ = std::move(o.bits_);
+    block_pos_ = std::move(o.block_pos_);
+    block_val_ = std::move(o.block_val_);
+    block_idx_ = std::move(o.block_idx_);
+    size_ = o.size_;
+    o.size_ = 0;
+    return *this;
   }
 
   size_t size() const {

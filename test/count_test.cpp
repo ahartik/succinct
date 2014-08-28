@@ -27,6 +27,7 @@ typedef ::testing::Types<
   SadaCount<FastBitVector>,
   SadaCount<RRR>,
   SadaSparseCount<true>,
+  SadaSparseCount<true, RRR>,
   SadaSparseCount<false>,
   RLEILCPCount
   > CountTypes;

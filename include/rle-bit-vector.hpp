@@ -3,6 +3,7 @@
 #include "fast-bit-vector.hpp"
 #include "sparse-bit-vector.hpp"
 #include <vector>
+#include <cassert>
 
 class RLEBitVector {
  public:
@@ -25,8 +26,7 @@ class RLEBitVector {
         --i;
       }
     }
-    pos.push_back(size_);
-    rank.push_back(r);
+    popcount_ = r;
     pos_ = SparseBitVector(pos.begin(), pos.end());
     rank_ = SparseBitVector(rank.begin(), rank.end());
   }
@@ -36,15 +36,11 @@ class RLEBitVector {
   RLEBitVector& operator=(RLEBitVector&& vec) = default;
 
   bool operator[](size_t x) const {
+    assert(x < size_);
     ++x;
     size_t runs = pos_.rank(x, 1);
-    size_t c0, c1;
-    if (runs == 0) {
-      c0 = 0;
-    } else {
-      c0 = rank_.select1(runs) - 1;
-    }
-    c1 = rank_.select1(runs + 1) - 1;
+    size_t c0 = rs(runs);
+    size_t c1 = rs(runs + 1);
     size_t rpos = pos_.select1(runs) - 1;
     return c0 + x - rpos <= c1;
   }
@@ -55,13 +51,8 @@ class RLEBitVector {
   }
   size_t rank1(size_t x) const {
     size_t runs = pos_.rank(x, 1);
-    size_t c0, c1;
-    if (runs == 0) {
-      c0 = 0;
-    } else {
-      c0 = rank_.select1(runs) - 1;
-    }
-    c1 = rank_.select1(runs + 1) - 1;
+    size_t c0 = rs(runs);
+    size_t c1 = rs(runs + 1);
     size_t rpos = pos_.select1(runs) - 1;
     return std::min(c0 + x - rpos, c1);
   }
@@ -99,7 +90,13 @@ class RLEBitVector {
   }
 
  private:
+  size_t rs(size_t x) const {
+    if (x == 0) return 0;
+    if (rank_.count(1) < x) return popcount_;
+    return rank_.select1(x) - 1;
+  }
   SparseBitVector pos_;
   SparseBitVector rank_;
+  size_t popcount_;
   size_t size_;
 };

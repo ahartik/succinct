@@ -43,7 +43,7 @@ class SadaCount {
       for (int j = 0; j < counts.get(i); ++j) bv[bit_count++] = 0;
       bv[bit_count++] = 1;
     }
-    bv.resize(bit_count+1);
+    bv.resize(bit_count + 1);
     bv_ = BitVector(bv);
   }
 
@@ -62,7 +62,7 @@ class SadaCount {
   }
 
   size_t byteSize() const {
-    return bv_.byteSize() + 1;
+    return bv_.byteSize();
   }
 
  private:

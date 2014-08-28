@@ -103,13 +103,22 @@ class RMQ {
       for (size_t i = 0; i < num_blocks; ++i) {
         size_t m = 0;
         size_t start = i * bs_;
-        for (size_t j = 1; j < bs_; ++j) {
+        for (size_t j = 1; j < bs_ && start + j < n; ++j) {
           if (arr_(start + j) < arr_(start + m)) {
             m = j;
           }
         }
         block_min_.set(i, m);
-        uint64_t block_id = small_rmq_.addRMQ<Func>(arr, start);
+        uint64_t block_id;
+        if (start + bs_ >= n) {
+          std::vector<T> tmp(bs_);
+          for (size_t j = 0; j < bs_ && start + j < n; ++j) {
+            tmp[j] = arr_(start + j);
+          }
+          block_id = small_rmq_.addRMQ<ArrWrap<T>>(ArrWrap<T>(&tmp[0]), 0);
+        } else {
+          block_id = small_rmq_.addRMQ<Func>(arr, start);
+        }
         block_id_.set(i, block_id);
       } 
       using namespace std::placeholders;

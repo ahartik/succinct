@@ -176,3 +176,13 @@ class BitIteratorImpl : public std::iterator<
 
 typedef BitIteratorImpl<BitReference> BitIterator;
 typedef BitIteratorImpl<ConstBitReference> ConstBitIterator;
+
+// TODO
+class OnePosBitIterator : public std::iterator<
+                          std::random_access_iterator_tag,
+                          size_t,
+                          ptrdiff_t,
+                          size_t*,
+                          const size_t&> {
+
+};

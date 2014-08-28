@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <map>
 
-template<bool OneOpt = true>
+template<bool OneOpt = true, typename OneVector = SparseBitVector>
 class SadaSparseCount {
  public:
   typedef SuffixArray::Index Index;
@@ -57,25 +57,27 @@ class SadaSparseCount {
     }
 
     vector<int> count_pos;
-    vector<int> one_pos;
+    MutableBitVector one(sa.size());
 //    count_pos.reserve(rest_count);
 //    one_pos.reserve(one_count);
     for (size_t i = 0; i < counts.size(); ++i) {
       int c = counts.get(i);
       if (c == 0) continue;
       if (c == 1 && OneOpt) {
-        one_pos.push_back(i);
+        one[i] = 1;
+        // one_pos.push_back(i);
       } else {
         count_pos.push_back(i);
       }
     }
 
-    std::sort(count_pos.begin(), count_pos.end());
-    std::sort(one_pos.begin(), one_pos.end());
+    // std::sort(count_pos.begin(), count_pos.end());
+    // std::sort(one_pos.begin(), one_pos.end());
     pos_ = SparseBitVector(count_pos.begin(),
                            count_pos.end());
 
-    one_ = SparseBitVector(one_pos.begin(), one_pos.end());
+    one_ = OneVector(one);
+    one = MutableBitVector();
  
     int c = 0;
     for (size_t i = 0; i < count_pos.size(); ++i) {
@@ -118,7 +120,7 @@ class SadaSparseCount {
   }
 
   // one_[i] == 1 <=> count[i] == 1
-  SparseBitVector one_;
+  OneVector one_;
   // pos_[i] == 1 <=> count[i] > 1
   SparseBitVector pos_;
   // unary encoding of count values.

@@ -125,6 +125,9 @@ template<size_t BlockSize = 64>
 class DeltaVector {
  public:
   static constexpr uint64_t BLOCK_SIZE = BlockSize;
+  DeltaVector() {
+    size_ = 0;
+  }
   template<typename IntT>
   DeltaVector(const std::vector<IntT>& vec) {
     DeltaEncoder enc(&bits_);
@@ -158,6 +161,23 @@ class DeltaVector {
         size_(v.size())
   {
     v.size_ = 0;
+  }
+
+  DeltaVector& operator=(const DeltaVector& o) {
+    bits_ = o.bits_;
+    block_pos_ = o.block_pos_;
+    block_val_ = o.block_val_;
+    size_ = o.size_;
+    return *this;
+  }
+
+  DeltaVector& operator=(DeltaVector&& o) {
+    bits_ = std::move(o.bits_);
+    block_pos_ = std::move(o.block_pos_);
+    block_val_ = std::move(o.block_val_);
+    size_ = o.size_;
+    o.size_ = 0;
+    return *this;
   }
 
   size_t size() const {

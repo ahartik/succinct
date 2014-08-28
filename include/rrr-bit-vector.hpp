@@ -186,7 +186,6 @@ class RRRBitVector {
         select_samples_[1].byteSize() +
         super_pos_.byteSize() +
         + sizeof(*this) - sizeof(idx_);
-    std::cout << "RRR overhead = " << double(extra) / main << "\n";
     return extra + main;
   }
   size_t count(bool bit) const {

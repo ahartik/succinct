@@ -15,6 +15,13 @@ class SparseIntArray {
   size_t size() const {
     return size_;
   }
+  ~SparseIntArray() {
+    for (Group& g : groups) {
+      if (WordPopCount(g.exist) > 1) {
+        delete[] g.u.values;
+      }
+    }
+  }
 
   const T& operator[](size_t i) const {
     int o = i % 64;
