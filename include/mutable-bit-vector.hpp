@@ -186,7 +186,8 @@ class MutableBitVector {
   }
 
   size_t byteSize() const {
-    return sizeof(*this) + bits_.size() * WordBits / 8;
+    return bits_.size() * sizeof(Word) +
+           sizeof(size_);
   }
  private:
   std::vector<Word> bits_;

@@ -82,8 +82,10 @@ class RLEBitVector {
     return pos + i - rank;
   }
   size_t byteSize() const {
-    return sizeof(*this) + 
-        (pos_.byteSize() + rank_.byteSize());
+    return pos_.byteSize() +
+           rank_.byteSize() +
+           sizeof(popcount_) +
+           sizeof(size_);
   }
   size_t size() const {
     return size_;

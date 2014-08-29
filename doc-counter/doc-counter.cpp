@@ -194,6 +194,8 @@ int main(int argc, char** argv) {
       >>;
   structFuncs["sada_sparse"] = &countPatterns<SadaSparseCount<1>>;
   structFuncs["sada_sparse_rrr"] = &countPatterns<SadaSparseCount<1, RRR>>;
+  structFuncs["sada_sparse_rle"] = &countPatterns<SadaSparseCount<1,
+      RLEBitVector>>;
   structFuncs["sada_sparse_simpler"] = &countPatterns<SadaSparseCount<0>>;
   
   for (const std::string& s : split(FLAGS_structures, ',')) {

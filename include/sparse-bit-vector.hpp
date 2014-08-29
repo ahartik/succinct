@@ -122,7 +122,11 @@ class SparseBitVector {
   }
 
   size_t byteSize() const {
-    return  sizeof(*this) + low_arr_.byteSize() + high_bits_.byteSize();
+    return low_arr_.byteSize() +
+           high_bits_.byteSize() +
+           sizeof(w_) +
+           sizeof(pop_) +
+           sizeof(size_);
   }
 
   size_t size() const {

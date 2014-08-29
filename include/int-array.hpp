@@ -52,11 +52,12 @@ class IntArray {
     bv_.setWord(i * width_, val, width_);
   }
   size_t byteSize() const {
-    return sizeof(*this) + bv_.byteSize() - sizeof(bv_);
+    return bv_.byteSize() +
+           sizeof(width_) +
+           sizeof(size_);
   }
  private:
   int width_;
   size_t size_;
   MutableBitVector bv_;
-  // std::vector<Word> vec_;
 };

@@ -178,16 +178,6 @@ class RRRBitVector {
   size_t size() const {
     return size_;
   }
-  size_t byteSize() const {
-    size_t main = idx_.byteSize();
-    size_t extra =
-        super_rank_.byteSize() +
-        select_samples_[0].byteSize() +
-        select_samples_[1].byteSize() +
-        super_pos_.byteSize() +
-        + sizeof(*this) - sizeof(idx_);
-    return extra + main;
-  }
   size_t count(bool bit) const {
     if (bit) return popcount_;
     return size() - popcount_;
@@ -202,6 +192,19 @@ class RRRBitVector {
     swap(a.block_class_, b.block_class_);
     swap(a.size_, b.size_);
     swap(a.idx_, b.idx_);
+  }
+  size_t byteSize() const {
+    size_t main = idx_.byteSize();
+    size_t extra =
+        super_rank_.byteSize() +
+        super_pos_.byteSize() +
+        select_samples_[0].byteSize() +
+        select_samples_[1].byteSize() +
+        block_class_.byteSize() +
+        sizeof(popcount_) +
+        sizeof(k_len_) +
+        sizeof(size_);
+    return extra + main;
   }
  private:
   friend class RRRBitVectorTest;
@@ -293,10 +296,10 @@ class RRRBitVector {
   }
   size_t popcount_;
   int k_len_[BlockSize + 1];
+  size_t size_;
   SparseVector select_samples_[2];
   SparseVector super_pos_;
   SparseVector super_rank_;
   IntArray block_class_;
-  size_t size_;
   MutableBitVector idx_;
 };
