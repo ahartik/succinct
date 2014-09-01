@@ -27,7 +27,7 @@ class BitReference {
   }
 
   int offset;
-  unsigned long* data;
+  Word* data;
 };
 
 class ConstBitReference {
@@ -48,7 +48,7 @@ class ConstBitReference {
   }
 
   int offset;
-  const unsigned long* data;
+  const Word* data;
 };
 
 template<typename Reference>

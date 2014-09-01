@@ -51,7 +51,7 @@ class FastBitVector {
       remaining -= WordBits;
     }
     // Add first bits from the last word.
-    unsigned long mask = (1LL << remaining) - 1LL;
+    Word mask = (1LL << remaining) - 1LL;
     sum += WordPopCount(bits[word] & mask);
     if (bit_value == 0) return pos - sum;
     return sum;

@@ -12,7 +12,6 @@
 #include <fstream>
 
 using namespace std;
-
 template<typename SA>
 void test(const std::string& str) {
   SA csa(str.c_str(), str.size());
