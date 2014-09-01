@@ -17,6 +17,6 @@ target_link_libraries(wavelet_benchmark
 
 add_executable(csa_benchmark csa_benchmark.cpp)
 target_link_libraries(csa_benchmark
+  ${LIBDIVSUFSORT_LIBS_DIR}/libdivsufsort.a
   succinct
-  divsufsort
   )
