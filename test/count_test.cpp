@@ -3,11 +3,13 @@
 
 #include "brute-count.hpp"
 #include "ilcp-count.hpp"
+#include "rle-bit-vector.hpp"
 #include "rle-ilcp-count.hpp"
 #include "rle-wavelet.hpp"
 #include "rrr-bit-vector.hpp"
 #include "sada-count.hpp"
 #include "sada-sparse-count.hpp"
+#include "sparse-bit-vector.hpp"
 
 template<typename T>
 class CountTest : public ::testing::Test {
@@ -26,6 +28,9 @@ typedef ::testing::Types<
   ILCPCount<RLEWavelet<SkewedWavelet<RRR>>>,
   SadaCount<FastBitVector>,
   SadaCount<RRR>,
+  SadaCount<RLEBitVector>,
+  SadaCount<RLEBitVector, 1, SparseBitVector>,
+  SadaCount<RLEBitVector, 1, RLEBitVector>,
   SadaSparseCount<true>,
   SadaSparseCount<true, RRR>,
   SadaSparseCount<false>,

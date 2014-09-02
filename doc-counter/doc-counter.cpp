@@ -156,6 +156,9 @@ int main(int argc, char** argv) {
     structFuncs;
 
   typedef RRRBitVector<63> RRR;
+  typedef RLEBitVector RLE;
+  typedef DeltaBitVector<RLEDeltaVector<>> RLEDV;
+
   structFuncs["brute"] = &countPatterns<BruteCount>;
   structFuncs["wt_skewed"] = &countPatterns<ILCPCount<
       SkewedWavelet<>>>;
@@ -189,13 +192,27 @@ int main(int argc, char** argv) {
   structFuncs["sada"] = &countPatterns<SadaCount<FastBitVector>>;
   structFuncs["sada_rrr"] = &countPatterns<SadaCount<RRR>>;
   structFuncs["sada_rle"] = &countPatterns<SadaCount<RLEBitVector>>;
-  structFuncs["sada_rledv"] = &countPatterns<SadaCount<
-      DeltaBitVector<RLEDeltaVector<>>
-      >>;
+  structFuncs["sada_rle_sparse"] = &countPatterns<
+      SadaCount<RLEBitVector, 1, SparseBitVector>>;
+  structFuncs["sada_rle_rle"] = &countPatterns<
+      SadaCount<RLEBitVector, 1, RLEBitVector>>;
+  structFuncs["sada_rle_rrr"] = &countPatterns<
+      SadaCount<RLEBitVector, 1, RRR>>;
+
+  structFuncs["sada_rledv"] = &countPatterns<SadaCount<RLEDV>>;
+  structFuncs["sada_rledv_rledv"] = &countPatterns<
+      SadaCount<RLEDV, 1, RLEDV>>;
+  structFuncs["sada_rledv_sparse"] = &countPatterns<
+      SadaCount<RLEDV, 1, SparseBitVector>>;
+  structFuncs["sada_rledv_rrr"] = &countPatterns<
+      SadaCount<RLEDV, 1, RRR>>;
+
   structFuncs["sada_sparse"] = &countPatterns<SadaSparseCount<1>>;
   structFuncs["sada_sparse_rrr"] = &countPatterns<SadaSparseCount<1, RRR>>;
-  structFuncs["sada_sparse_rle"] = &countPatterns<SadaSparseCount<1,
-      RLEBitVector>>;
+  structFuncs["sada_sparse_rle"] = &countPatterns<
+      SadaSparseCount<1, RLE>>;
+  structFuncs["sada_sparse_rledv"] = &countPatterns<
+      SadaSparseCount<1, RLEDV>>;
   structFuncs["sada_sparse_simpler"] = &countPatterns<SadaSparseCount<0>>;
   
   for (const std::string& s : split(FLAGS_structures, ',')) {

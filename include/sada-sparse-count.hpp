@@ -14,45 +14,10 @@ class SadaSparseCount {
   typedef SuffixArray::Index Index;
   typedef SuffixArray::SuffixRange SuffixRange;
   SadaSparseCount(const SuffixArray& sa) {
-    using std::vector;
-    vector<Index> ends;
-    const unsigned char* text =
-        reinterpret_cast<const unsigned char*>(sa.text());
-    for (Index i = 0; i < sa.size(); ++i) {
-      if (text[i] <= 1) {
-        ends.push_back(i);
-      }
-    }
-    SparseBitVector da(ends.begin(), ends.end());
-    RMQ<Index> lcp_rmq(sa.lcp_data(), sa.size());
-
-    vector<int> prev(ends.size() + 1, -1);
-
     SparseIntArray<int> counts(sa.size());
-    for (int i = 0; i < sa.size(); ++i) {
-      int d = da.rank(sa.sa(i), 1);
-      // assert(d < lens.size() || i == 0);
-      if (prev[d] == -1) {
-        prev[d] = i;
-      } else {
-        int r = lcp_rmq.rmq(prev[d]+1, i+1);
-#if 0
-        // Experiment to only have one position for every "real" internal node.
-        // Improves size a bit when not using OneOpt.
-        {
-          int lc = sa.lcp(r);
-          int ri = r;
-          while (ri > 0 && sa.lcp(ri-1) >= lc) {
-            ri--;
-            if (sa.lcp(ri) == lc) r = ri;
-          }
-        }
-#endif
-        ++counts[r];
-        prev[d] = i;
-      }
-    }
+    SadaConstruct(sa, &counts);
 
+    using std::vector;
     vector<int> count_pos;
     MutableBitVector one(sa.size());
     for (size_t i = 0; i < counts.size(); ++i) {

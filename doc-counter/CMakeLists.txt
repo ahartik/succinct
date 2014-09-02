@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 2.6.0)
 project(doc-counter CXX C)
 ADD_DEFINITIONS(
       -O3
-      -DNDEBUG
       -std=c++0x # Or -std=c++0x
       -Wall
       -march=native
