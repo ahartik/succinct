@@ -13,49 +13,50 @@ class RLEDeltaVector {
     size_ = 0;
   }
   template<typename IntT>
-  RLEDeltaVector(const std::vector<IntT>& vec) {
+  RLEDeltaVector(const std::vector<IntT>& vec) 
+      : RLEDeltaVector(vec.begin(), vec.end()) { }
+  template<typename Iterator>
+  RLEDeltaVector(Iterator begin, Iterator end) {
     DeltaEncoder enc(&bits_);
-    IntT last = 0;
-    size_ = vec.size();
+    uint64_t last = 0;
     std::vector<uint64_t> block_pos;
     std::vector<uint64_t> block_val;
     std::vector<uint64_t> block_idx;
-  //   block_pos_.resize(num_blocks + 1);
-  //   block_val_.resize(num_blocks + 1);
     size_t last_block = 0;
-    for (size_t i = 0; i < vec.size(); ++i) {
+    size_t i = 0;
+    for (auto it = begin; it != end; ++it, ++i) {
+      uint64_t val = *it;
       if (i == 0 || enc.tell() - last_block >= BLOCK_SIZE) {
         last_block = enc.tell();
         block_idx.push_back(i);
         block_pos.push_back(enc.tell());
-        block_val.push_back(vec[i]);
+        block_val.push_back(val);
       } else {
-        uint64_t d = vec[i] - last;
+        uint64_t d = val - last;
         enc.add(d);
         if (d == 1) {
-          last = vec[i];
+          last = val;
+          ++it;
           ++i;
           int count = 1;
-          for (;i < vec.size(); ++i) {
-            uint64_t d = vec[i] - last;
+          for (;it != end; ++it, ++i) {
+            uint64_t d = *it - last;
             if (d != 1) {
               break;
             }
             ++count;
-            last = vec[i];
+            last = *it;
           }
           --i;
+          --it;
           enc.add(count);
         }
       }
-      last = vec[i];
+      last = *it;
     }
-    block_idx.push_back(size());
-    if (vec.empty()) {
-      block_val.push_back(1);
-    } else {
-      block_val.push_back(vec.back() + 1);
-    }
+    size_ = i;
+    block_idx.push_back(size_);
+    block_val.push_back(last + 1);
     block_pos.push_back(enc.tell());
     enc.finish();
     // trim vector
@@ -166,7 +167,6 @@ class RLEDeltaVector {
   size_t byteSize() const {
     return sizeof(*this) +
            8 *bits_.size() + sampleSize();
-           
   }
   size_t sampleSize() const {
     return (block_pos_.byteSize() + block_val_.byteSize() +

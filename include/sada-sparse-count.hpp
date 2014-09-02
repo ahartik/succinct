@@ -29,8 +29,6 @@ class SadaSparseCount {
     vector<int> prev(ends.size() + 1, -1);
 
     SparseIntArray<int> counts(sa.size());
-    int one_count = 0;
-    int rest_count = 0;
     for (int i = 0; i < sa.size(); ++i) {
       int d = da.rank(sa.sa(i), 1);
       // assert(d < lens.size() || i == 0);
@@ -43,40 +41,35 @@ class SadaSparseCount {
         // Improves size a bit when not using OneOpt.
         {
           int lc = sa.lcp(r);
-          while (r > 0 && sa.lcp(r-1) == lc) r--;
+          int ri = r;
+          while (ri > 0 && sa.lcp(ri-1) >= lc) {
+            ri--;
+            if (sa.lcp(ri) == lc) r = ri;
+          }
         }
 #endif
-        int c = ++counts[r];
-        if (c == 1) one_count++;
-        if (c == 2) {
-          one_count--;
-          rest_count ++;
-        }
+        ++counts[r];
         prev[d] = i;
       }
     }
 
     vector<int> count_pos;
     MutableBitVector one(sa.size());
-//    count_pos.reserve(rest_count);
-//    one_pos.reserve(one_count);
     for (size_t i = 0; i < counts.size(); ++i) {
       int c = counts.get(i);
       if (c == 0) continue;
       if (c == 1 && OneOpt) {
         one[i] = 1;
-        // one_pos.push_back(i);
       } else {
         count_pos.push_back(i);
       }
     }
 
-    // std::sort(count_pos.begin(), count_pos.end());
-    // std::sort(one_pos.begin(), one_pos.end());
     pos_ = SparseBitVector(count_pos.begin(),
                            count_pos.end());
 
     one_ = OneVector(one);
+    // Free some memory
     one = MutableBitVector();
  
     int c = 0;

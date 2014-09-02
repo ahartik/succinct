@@ -177,12 +177,131 @@ class BitIteratorImpl : public std::iterator<
 typedef BitIteratorImpl<BitReference> BitIterator;
 typedef BitIteratorImpl<ConstBitReference> ConstBitIterator;
 
+template<typename BitVector, bool Bit = 1>
+class BitPosIteratorAdaptor {
+ public:
+  BitPosIteratorAdaptor() {
+    end_ = true;
+  }
+  BitPosIteratorAdaptor(const BitVector* bv, size_t pos) {
+    bv_ = bv;
+    seek(pos);
+  }
+  size_t pos() const {
+    return pos_;
+  }
+  size_t get() const {
+    assert(!end);
+    return val_;
+  }
+  void inc() {
+    seek(pos + 1);
+  }
+  void dec() {
+    seek(pos - 1);
+  }
+  void seek(size_t pos) {
+    if (pos >= bv_.count(Bit)) {
+      end_ = true;
+      pos_ = pos;
+      val_ = -1;
+    } else {
+      end_ = false;
+      val_ = bv_.select(pos + 1, Bit) - 1;
+    }
+    pos_ = pos;
+  }
+  const BitVector* vec() const {
+    return bv_;
+  }
+  bool end() const {
+    return end_;
+  }
+ private:
+  const BitVector* bv_;
+  size_t pos_;
+  size_t val_;
+  bool end_;
+};
+
 // TODO
-class OnePosBitIterator : public std::iterator<
+template<typename BitVector, bool Bit = 1>
+class BitPosIterator : public std::iterator<
                           std::random_access_iterator_tag,
                           size_t,
                           ptrdiff_t,
-                          size_t*,
+                          const size_t*,
                           const size_t&> {
+  public:
+  typedef BitPosIteratorAdaptor<BitVector, Bit> Adaptor;
+  BitPosIterator(const Adaptor& a) : a_(a) { }
+  BitPosIterator(const BitPosIterator& o) = default;
 
+  bool operator==(const BitPosIterator& o) const {
+    // two 
+    if (a_.end() && o.a_.end()) return true;
+    return a_.vec() == o.a_.vec() && a_.pos() == o.a_.pos();
+  }
+  bool operator!=(const BitPosIterator& o) const {
+    return !(*this == o);
+  }
+  bool operator<(const BitPosIterator& o) const {
+    if (a_.end() && o.a_.end()) return false;
+    return a_.pos() < o.a_.pos();
+  }
+  bool operator>(const BitPosIterator& o) const {
+    return o < (*this);
+  }
+  bool operator<=(const BitPosIterator& o) const {
+    return (*this) < o || (*this) == o;
+  }
+  bool operator>=(const BitPosIterator& o) const {
+    return o <= (*this);
+  }
+  size_t operator*() const {
+    return a_.get();
+  }
+  BitPosIterator operator--() {
+    a_.dec();
+    return *this;
+  }
+  BitPosIterator operator++() {
+    a_.inc();
+    return *this;
+  }
+  BitPosIterator operator--(int x) {
+    BitPosIterator result = *this;
+    --(*this);
+    return result;
+  }
+  BitPosIterator operator++(int x) {
+    BitPosIterator result = *this;
+    ++(*this);
+    return result;
+  }
+  
+  BitPosIterator operator-=(ptrdiff_t d) {
+    return (*this) += -d;
+  }
+  ptrdiff_t operator-(const BitPosIterator& o) const {
+    return a_.pos() - o.a_.pos();
+  }
+
+  BitPosIterator operator+=(ptrdiff_t d) {
+    a_.seek(a_.pos + d);
+    return *this;
+  }
+  friend BitPosIterator operator+(ptrdiff_t d, BitPosIterator it) {
+    return it + d;
+  }
+  
+  friend BitPosIterator operator+(BitPosIterator it, ptrdiff_t d) {
+    it += d;
+    return it;
+  }
+  friend BitPosIterator operator-(BitPosIterator a, ptrdiff_t d) {
+    return a + (-d);
+  }
+ private:
+  Adaptor a_;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "bit-iterator.hpp"
+#include "bit-utils.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -115,6 +116,22 @@ class MutableBitVector {
     return ConstBitIterator(ret);
   }
 
+  template<bool Bit>
+  BitPosIterator<MutableBitVector, Bit> bitPosBegin() const {
+    return BitPosIterator<MutableBitVector, Bit>(
+        BitPosIteratorAdaptor<MutableBitVector, Bit>(this));
+  }
+
+  template<bool Bit>
+  BitPosIterator<MutableBitVector, Bit> bitPosEnd() const {
+    size_t popcount = 0;
+    for (Word w : bits_) {
+      popcount += WordPopCount(w);
+    }
+    return BitPosIterator<MutableBitVector, Bit>(
+        BitPosIteratorAdaptor<MutableBitVector, Bit>(popcount));
+  }
+
   Word getWord(size_t i, int len) const {
     size_t pos = i / WordBits;
     size_t off = i % WordBits;
@@ -192,4 +209,57 @@ class MutableBitVector {
  private:
   std::vector<Word> bits_;
   size_t size_;
+};
+
+template<bool Bit>
+class BitPosIteratorAdaptor<MutableBitVector, Bit> {
+ public:
+  BitPosIteratorAdaptor(size_t popcount) {
+    pos_ = popcount;
+    end_ = true;
+  }
+  BitPosIteratorAdaptor(const MutableBitVector* bv) {
+    bv_ = bv;
+    val_ = 0;
+    pos_ = 0;
+    end_ = false;
+    findNext();
+  }
+  size_t pos() const {
+    return pos_;
+  }
+  size_t get() const {
+    return val_;
+  }
+  void inc() {
+    ++val_;
+    findNext();
+    ++pos_;
+  }
+  void dec() {
+    --val_;
+    findPrev();
+    --pos_;
+  }
+  const MutableBitVector* vec() const {
+    return bv_;
+  }
+  bool end() const {
+    return end_;
+  }
+ private:
+  // moves val to next one
+  void findNext() {
+    for (; val_ < bv_->size() && (*bv_)[val_] == false; ++val_);
+    if (val_ == bv_->size()) end_ = true;
+  }
+  void findPrev() {
+    end_ = false;
+    for (; val_ > 0 && (*bv_)[val_] == false; --val_);
+    assert((*bv_)[val_]);
+  }
+  const MutableBitVector* bv_;
+  size_t pos_;
+  size_t val_;
+  bool end_;
 };

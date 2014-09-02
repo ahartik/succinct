@@ -25,7 +25,6 @@ class SadaCount {
     RMQ<Index> lcp_rmq(sa.lcp_data(), sa.size());
 
     vector<int> prev(ends.size() + 1, -1);
-    // vector<int> counts(sa.size(), 0);
     SparseIntArray<int> counts(sa.size());
     for (int i = 0; i < sa.size(); ++i) {
       int d = da.rank(sa.sa(i), 1);
@@ -33,6 +32,18 @@ class SadaCount {
         prev[d] = i;
       } else {
         int r = lcp_rmq.rmq(prev[d]+1, i+1);
+#if 0
+        // Experiment to only have one position for every "real" internal node.
+        // Improves size a bit when not using OneOpt.
+        {
+          int lc = sa.lcp(r);
+          int ri = r;
+          while (ri > 0 && sa.lcp(ri-1) >= lc) {
+            ri--;
+            if (sa.lcp(ri) == lc) r = ri;
+          }
+        }
+#endif
         counts[r]++;
         prev[d] = i;
       }

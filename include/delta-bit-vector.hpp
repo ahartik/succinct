@@ -12,13 +12,7 @@ class DeltaBitVector {
   }
   DeltaBitVector(const MutableBitVector& vec) {
     size_ = vec.size();
-    std::vector<size_t> pos;
-    for (size_t i = 0; i < vec.size(); ++i) {
-      if (vec[i]) {
-        pos.push_back(i);
-      }
-    }
-    vec_ = DVec(pos);
+    vec_ = DVec(vec.bitPosBegin<1>(), vec.bitPosEnd<1>());
   }
   DeltaBitVector(DeltaBitVector&& vec) = default;
   DeltaBitVector(const DeltaBitVector& vec) = default;

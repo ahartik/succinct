@@ -129,25 +129,28 @@ class DeltaVector {
     size_ = 0;
   }
   template<typename IntT>
-  DeltaVector(const std::vector<IntT>& vec) {
+  DeltaVector(const std::vector<IntT>& vec) 
+      : DeltaVector(vec.begin(), vec.end()) { }
+
+  template<typename Iterator>
+  DeltaVector(Iterator begin, Iterator end) {
     DeltaEncoder enc(&bits_);
-    IntT last = 0;
-    size_ = vec.size();
-    int num_blocks = (size_ + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    block_val_.resize(num_blocks);
-    block_pos_.resize(num_blocks);
-    for (size_t i = 0; i < vec.size(); ++i) {
+    uint64_t last = 0;
+    size_t i = 0;
+    for (auto it = begin; it != end; ++i, ++it) {
       size_t block = i / BLOCK_SIZE;
+      uint64_t val = *it;
       if (i % BLOCK_SIZE == 0) {
-        block_pos_[block] = enc.tell();
-        block_val_[block] = vec[i];
+        block_pos_.push_back(enc.tell());
+        block_val_.push_back(val);
       } else {
-        assert(vec[i] > last);
-        uint64_t d = vec[i] - last;
+        assert(val > last);
+        uint64_t d = val - last;
         enc.add(d);
       }
-      last = vec[i];
+      last = val;
     }
+    size_ = i;
     enc.finish();
     // trim vector
     bits_ = std::vector<uint64_t>(bits_);
