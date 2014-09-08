@@ -10,8 +10,8 @@ void ILCPConstruct(const SuffixArray& sa,
   Index start = 0;
   int num_docs = 0;
   const char* text = sa.text();
-  for (Index i = 0; i <= sa.size(); ++i) {
-    if (i == sa.size() || (unsigned char)text[i] <= 1) {
+  for (Index i = 0; i <= (Index)sa.size(); ++i) {
+    if (i == (Index)sa.size() || (unsigned char)text[i] <= 1) {
       const char* doc = text + start;
       Index doc_len = i - start;
       SuffixArray doc_sa(doc, doc_len);
@@ -26,7 +26,7 @@ void ILCPConstruct(const SuffixArray& sa,
   }
   std::vector<bool> visited(sa.size());
   // permutate text_lcp[i] = text_lcp[sa[i]] implace
-  for (Index i = 0; i < sa.size(); ++i) {
+  for (Index i = 0; i < (Index)sa.size(); ++i) {
     if (!visited[i]) {
       int j = i;
       while (true) {

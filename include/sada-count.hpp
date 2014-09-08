@@ -26,7 +26,7 @@ class SadaCount {
           count = 0;
         }
       }
-      for (int j = 0; j < count; ++j) bit_count++;
+      bit_count += count;
       bv[bit_count++] = 1;
     }
     bv.resize(bit_count + 1);

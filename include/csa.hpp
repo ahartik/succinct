@@ -9,6 +9,7 @@
 #include <utility>
 #include <algorithm>
 #include <cstring>
+#include <stdexcept>
 
 template <typename DVector = DeltaVector<>>
 class CSA {

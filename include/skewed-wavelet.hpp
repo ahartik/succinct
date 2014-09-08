@@ -43,7 +43,7 @@ class SkewedWavelet {
         int64_t a = arr[start + i];
         int lvl = Level(a, &fixed);
         (void)lvl;
-        assert(lvl == j);
+        assert(size_t(lvl) == j);
         arr[start + i] = fixed;
       }
       wt_.emplace_back(arr + start, arr + start + level_size[j]);

@@ -26,7 +26,7 @@ class SuffixArray {
     return text_.data();
   }
 
-  Index size() const {
+  size_t size() const {
     return text_.size();
   }
   

@@ -87,7 +87,7 @@ TYPED_TEST(BitVectorTest, RandomSelect) {
 
 TYPED_TEST(BitVectorTest, Index) {
   MutableBitVector v(1024);
-  for (int i = 0; i < v.size(); ++i) {
+  for (size_t i = 0; i < v.size(); ++i) {
     if (i < v.size() / 2) {
       v[i] = i % 17 == 0; 
     } else {

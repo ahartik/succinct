@@ -14,7 +14,7 @@ class BruteCount {
     std::vector<int> dn(length);
     int d = 0;
     const char* text = sa.text();
-    for (Index i = 0; i < sa.size(); ++i) {
+    for (Index i = 0; i < (Index)sa.size(); ++i) {
       dn[i] = d;
       if ((unsigned char)text[i] <= 1) {
         d++;

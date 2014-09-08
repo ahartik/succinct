@@ -26,9 +26,9 @@ class SparseIntArray {
   const T& operator[](size_t i) const {
     int o = i % 64;
     const Group& g = groups[i / 64];
-    if ((g.exist & (1ll << o)) == 0) return zero;
-    if (g.exist == (1ll << o)) return g.u.single;
-    int r = WordPopCount(g.exist & ((1ll << o) - 1));
+    if ((g.exist & (1ull << o)) == 0) return zero;
+    if (g.exist == (1ull << o)) return g.u.single;
+    int r = WordPopCount(g.exist & ((1ull << o) - 1));
     return g.u.values[r];
   }
   const T& get(size_t i) const {
@@ -38,23 +38,23 @@ class SparseIntArray {
   T& operator[](size_t i) {
     int o = i % 64;
     Group& g = groups[i / 64];
-    if ((g.exist & (1ll << o)) == 0) {
+    if ((g.exist & (1ull << o)) == 0) {
       if (g.exist == 0) {
-        g.exist = 1ll << o;
+        g.exist = 1ull << o;
         g.u.single = 0;
         return g.u.single;
       }
       if (__builtin_popcountll(g.exist) == 1) {
         T old = g.u.single;
         g.u.values = new T[2];
-        assert (g.exist != (1ll << o));
-        if ((1ll << o) < g.exist) {
-          g.exist |= 1ll << o;
+        assert (g.exist != (1ull << o));
+        if ((1ull << o) < g.exist) {
+          g.exist |= 1ull << o;
           g.u.values[1] = old;
           g.u.values[0] = 0;
           return g.u.values[0];
         } else {
-          g.exist |= 1ll << o;
+          g.exist |= 1ull << o;
           g.u.values[0] = old;
           g.u.values[1] = 0;
           return g.u.values[1];
@@ -63,14 +63,14 @@ class SparseIntArray {
       int k = __builtin_popcountll(g.exist);
       assert(k > 1);
       T* nv = new T[k + 1];
-      g.exist |= 1ll << o;
+      g.exist |= 1ull << o;
       uint64_t v = g.exist;
       int r = -1;
       int p = 0;
       int op = 0;
       while (v) {
         int j = ffsll(v) - 1;
-        v ^= 1ll << j;
+        v ^= 1ull << j;
         if (j == o) {
           r = p;
           nv[p] = 0;
@@ -85,8 +85,8 @@ class SparseIntArray {
       g.u.values = nv;
       return g.u.values[r];
     }
-    if (g.exist == (1ll << o)) return g.u.single;
-    int r = __builtin_popcountll(g.exist & ((1ll << o) - 1));
+    if (g.exist == (1ull << o)) return g.u.single;
+    int r = __builtin_popcountll(g.exist & ((1ull << o) - 1));
     return g.u.values[r];
   }
  private:

@@ -34,7 +34,8 @@ typedef ::testing::Types<
   SadaSparseCount<true>,
   SadaSparseCount<true, RRR>,
   SadaSparseCount<false>,
-  RLEILCPCount
+  RLEILCPCount,
+  BruteCount
   > CountTypes;
 
 TYPED_TEST_CASE(CountTest, CountTypes );

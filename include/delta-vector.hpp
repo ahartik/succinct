@@ -138,7 +138,6 @@ class DeltaVector {
     uint64_t last = 0;
     size_t i = 0;
     for (auto it = begin; it != end; ++i, ++it) {
-      size_t block = i / BLOCK_SIZE;
       uint64_t val = *it;
       if (i % BLOCK_SIZE == 0) {
         block_pos_.push_back(enc.tell());

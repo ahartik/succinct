@@ -28,7 +28,7 @@ void SadaConstruct (const SuffixArray& sa,
 
   vector<int> prev(ends.size() + 1, -1);
   SparseIntArray<int>& counts = *count;
-  for (int i = 0; i < sa.size(); ++i) {
+  for (size_t i = 0; i < sa.size(); ++i) {
     int d = da.rank(sa.sa(i), 1);
     if (prev[d] == -1) {
       prev[d] = i;
@@ -52,7 +52,7 @@ void SadaConstruct (const SuffixArray& sa,
   vector<Index> ends;
   const unsigned char* text =
       reinterpret_cast<const unsigned char*>(sa.text());
-  for (Index i = 0; i < sa.size(); ++i) {
+  for (Index i = 0; i < (Index)sa.size(); ++i) {
     if (text[i] <= 1) {
       ends.push_back(i);
     }
@@ -65,7 +65,7 @@ void SadaConstruct (const SuffixArray& sa,
   vector<int> stack;
   vector<int> min_pos;
   vector<int> max_pos;
-  for (int i = 0; i < sa.size(); ++i) {
+  for (size_t i = 0; i < sa.size(); ++i) {
     int d = da.rank(sa.sa(i), 1);
     int lcp = sa.lcp(i);
     while (stack.size() > 0 && stack.back() > lcp) {

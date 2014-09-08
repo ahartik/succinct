@@ -14,7 +14,7 @@ class RLEILCPCount {
     ILCPConstruct(sa, &ilcp);
 
     std::vector<std::vector<Index>> pos;
-    for (Index i = 0; i < sa.size(); ++i) {
+    for (Index i = 0; i < (Index)sa.size(); ++i) {
       Index val = ilcp[i];
       if (Index(pos.size()) <= val) {
         pos.resize(val + 1);
