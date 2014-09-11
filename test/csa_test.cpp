@@ -6,6 +6,7 @@
 #include "rle-delta-vector.hpp"
 #include "sparse-vector.hpp"
 #include "rle-sparse-vector.hpp"
+#include "rrr-bit-vector.hpp"
 #include "suffix-array.hpp"
 
 template<typename T>
@@ -18,7 +19,8 @@ typedef ::testing::Types<
   CSA<RLEDeltaVector<>>,
   CSA<SparseVector>,
   CSA<RLESparseVector>,
-  WtCSA,
+  WtCSA<>,
+  WtCSA<BalancedWavelet<RRRBitVector<> > >,
   SuffixArray
   > CSATypes;
 

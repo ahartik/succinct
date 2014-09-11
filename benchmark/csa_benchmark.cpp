@@ -1,6 +1,7 @@
 #include "csa.hpp"
 #include "rle-delta-vector.hpp"
 #include "rle-sparse-vector.hpp"
+#include "rrr-bit-vector.hpp"
 #include "sparse-vector.hpp"
 #include "wt-csa.hpp"
 
@@ -101,5 +102,5 @@ int main() {
 //   std::cout << "----- CSA<RLEDeltaVector<512>>\n";
 //   all<CSA<RLEDeltaVector<512>>>();
   std::cout << "----- WtCSA \n";
-  all<WtCSA>();
+  all<WtCSA<>>();
 }

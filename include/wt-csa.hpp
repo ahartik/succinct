@@ -10,13 +10,12 @@
 #include <cassert>
 
 // TODO: unhack!
-
+template<typename Wavelet = BalancedWavelet<>>
 class WtCSA {
  public:
   typedef int Index;
   typedef std::pair<Index,Index> SuffixRange;
   // typedef RLEWavelet<BalancedWavelet<>> Wavelet;
-  typedef BalancedWavelet<> Wavelet;
   // contents of input are bwtd afterwards
   WtCSA(const char* input, size_t n) {
     memset(c_, 0, sizeof(c_));

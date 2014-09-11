@@ -22,3 +22,13 @@ target_link_libraries(ilcp-entropy
   ${GFLAGS_LIBS_DIR}/libgflags.a
   pthread
 )
+
+add_executable(csa-entropy csa-entropy.cpp)
+add_dependencies(csa-entropy libdivsufsort)
+
+target_link_libraries(csa-entropy
+  succinct
+  ${LIBDIVSUFSORT_LIBS_DIR}/libdivsufsort.a
+  ${GFLAGS_LIBS_DIR}/libgflags.a
+  pthread
+)

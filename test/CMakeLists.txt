@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6.0)
 ## Project information ##
 project(succinct_test CXX C)
 
+# Only build tests in debug mode
+set(CMAKE_BUILD_TYPE Debug)
 add_definitions(-g -O0 -Wall)
 
 file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
