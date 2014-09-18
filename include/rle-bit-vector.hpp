@@ -12,13 +12,13 @@ class RLEBitVector {
   }
   RLEBitVector(const MutableBitVector& vec) {
     size_ = vec.size();
-    std::vector<size_t> pos;
-    std::vector<size_t> rank;
+    MutableBitVector pos(vec.size());
+    MutableBitVector rank(vec.size());
     size_t r = 0;
     for (size_t i = 0; i < vec.size(); ++i) {
       if (vec[i]) {
-        pos.push_back(i);
-        rank.push_back(r);
+        pos[i] = 1;
+        rank[r] = 1;
         while (i < vec.size() && vec[i]) {
           ++i;
           ++r;
@@ -27,8 +27,8 @@ class RLEBitVector {
       }
     }
     popcount_ = r;
-    pos_ = SparseBitVector(pos.begin(), pos.end());
-    rank_ = SparseBitVector(rank.begin(), rank.end());
+    pos_ = SparseBitVector(pos);
+    rank_ = SparseBitVector(rank);
   }
   RLEBitVector(RLEBitVector&& vec) = default;
   RLEBitVector(const RLEBitVector& vec) = default;

@@ -2,6 +2,7 @@
 
 #include "fast-bit-vector.hpp"
 #include "int-array.hpp"
+#include "bit-iterator.hpp"
 
 #include <iterator>
 #include <stdint.h>
@@ -21,11 +22,7 @@ class SparseBitVector {
     init(begin, end);
   }
   SparseBitVector(const MutableBitVector& vec) {
-    std::vector<size_t> pos;
-    for (size_t i = 0; i < vec.size(); ++i) {
-      if (vec[i]) pos.push_back(i);
-    }
-    init(pos.begin(), pos.end());
+    init(vec.bitPosBegin<1>(), vec.bitPosEnd<1>());
   }
 
   SparseBitVector(SparseBitVector&& o) : SparseBitVector() {

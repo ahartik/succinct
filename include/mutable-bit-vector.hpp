@@ -126,10 +126,10 @@ class MutableBitVector {
   BitPosIterator<MutableBitVector, Bit> bitPosEnd() const {
     size_t popcount = 0;
     for (Word w : bits_) {
-      popcount += WordPopCount(w);
+      popcount += Bit ? WordPopCount(w) : WordBits - WordPopCount(w);
     }
     return BitPosIterator<MutableBitVector, Bit>(
-        BitPosIteratorAdaptor<MutableBitVector, Bit>(popcount));
+        BitPosIteratorAdaptor<MutableBitVector, Bit>(this, popcount, size()));
   }
 
   Word getWord(size_t i, int len) const {
@@ -214,15 +214,13 @@ class MutableBitVector {
 template<bool Bit>
 class BitPosIteratorAdaptor<MutableBitVector, Bit> {
  public:
-  BitPosIteratorAdaptor(size_t popcount) {
-    pos_ = popcount;
-    end_ = true;
-  }
-  BitPosIteratorAdaptor(const MutableBitVector* bv) {
+  BitPosIteratorAdaptor(const MutableBitVector* bv,
+                        size_t pos = 0,
+                        size_t val = 0) {
     bv_ = bv;
-    val_ = 0;
-    pos_ = 0;
-    end_ = false;
+    val_ = val;
+    pos_ = pos;
+    end_ = val >= bv_->size();
     findNext();
   }
   size_t pos() const {
