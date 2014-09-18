@@ -23,7 +23,7 @@ include_directories(
   )
 
 
-add_definitions(-std=c++11 -march=native -Wall)
+add_definitions(-std=c++11 -Wall)
 
 file(GLOB LIB_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(succinct ${LIB_SRC_FILES})
