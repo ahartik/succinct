@@ -22,8 +22,7 @@ include_directories(
   ${GFLAGS_INCLUDE_DIRS}
   )
 
-
-add_definitions(-std=c++11 -Wall)
+add_definitions(-std=c++11 -Wall -msse4.2)
 
 file(GLOB LIB_SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(succinct ${LIB_SRC_FILES})
